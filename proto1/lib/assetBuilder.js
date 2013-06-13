@@ -20,6 +20,7 @@ jsConfig = {
     'ClientModel'      : 'models/client',
     'ClientCollection' : 'collections/clients',
     'HomeView'         : 'views/home',
+    'NewsView'         : 'views/news',
     'HeaderView'       : 'views/header',
     'ClientListView'   : 'views/clients/index',
     'ClientEditView'   : 'views/clients/edit',
