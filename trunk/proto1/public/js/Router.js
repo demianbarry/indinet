@@ -3,12 +3,13 @@ define('Router', [
   'underscore',
   'backbone',
   'HomeView',
+  'NewsView',
   'HeaderView',
   'ClientListView',
   'ClientView',
   'ClientEditView',
   'ClientModel'
-], function($, _, Backbone, HomeView, HeaderView, ClientListView, ClientView, ClientEditView, Client) {
+], function($, _, Backbone, HomeView, NewsView, HeaderView, ClientListView, ClientView, ClientEditView, Client) {
   var AppRouter, initialize;
 
   AppRouter = Backbone.Router.extend({
@@ -28,7 +29,8 @@ define('Router', [
       this.headerView = new HeaderView();
       // cached elements
       this.elms = {
-        'page-content': $('.page-content')
+        'page-content': $('.page-content'),
+        'news-content': $('.news-content')        
       };
       $('header').hide().html(this.headerView.render().el).fadeIn('slow');
       $('footer').fadeIn('slow');
@@ -40,6 +42,11 @@ define('Router', [
         this.homeView = new HomeView();
       }
       this.elms['page-content'].html(this.homeView.render().el);
+
+      if (!this.newsView) {
+        this.newsView = new NewsView();
+      }
+      this.elms['news-content'].html(this.newsView.render().el);
     },
     showClients: function() {
       var that = this;
