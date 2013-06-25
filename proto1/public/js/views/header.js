@@ -19,6 +19,9 @@ define('HeaderView', [
         ajaxLoader.fadeOut('fast');
       });
     },
+     events: {
+        "click #loginButton": "login"
+    },
     render: function() {
       $(this.el).html(this.template());
       return this;
@@ -26,6 +29,18 @@ define('HeaderView', [
     select: function(item) {
       $('.nav li').removeClass('active');
       $('.' + item).addClass('active');
+    },
+    login: function() {
+      $.get('/login', {
+        username: $('input[name=username]').val(),
+        password: $('input[name=password]').val()
+      }, function(data) {
+        console.log(data);
+      }).error(function(){
+        $("#error").text('Imposible entrar.');
+        $("#error").slideDown();
+      });
+      return false;
     }
   });
 
