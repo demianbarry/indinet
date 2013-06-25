@@ -1,4 +1,5 @@
 requirejs.config({
+    baseUrl:"js",
   shim: {
     'underscore': {
       exports: '_'
@@ -25,8 +26,8 @@ requirejs.config({
     'bootstrap'        : 'lib/bootstrap',
     'moment'           : 'lib/moment',
     'Mediator'         : 'lib/mediator',
-    'App'              : 'app',
-    'Router'           : 'router',
+    'App'              : 'App',
+    'Router'           : 'Router',
     'ClientModel'      : 'models/client',
     'ClientCollection' : 'collections/clients',
     'HomeView'         : 'views/home',
@@ -39,5 +40,6 @@ requirejs.config({
 });
 
 require(['App'], function(App, Client) {
+  console.log("App: ", JSON.stringify(App));
   App.initialize();
 });

@@ -16,6 +16,7 @@ define('Router', [
     routes: {
       ''            : 'home',
       'home'        : 'home',
+      'news'        : 'news',
       'clients'     : 'showClients', // /#/clients
       'clients/new' : 'addClient',
       'clients/:id' : 'showClient',
@@ -42,6 +43,14 @@ define('Router', [
         this.homeView = new HomeView();
       }
       this.elms['page-content'].html(this.homeView.render().el);
+
+      if (!this.newsView) {
+        this.newsView = new NewsView();
+      }
+      this.elms['news-content'].html(this.newsView.render().el);
+    },
+    news: function() {
+      this.headerView.select('home-menu');
 
       if (!this.newsView) {
         this.newsView = new NewsView();

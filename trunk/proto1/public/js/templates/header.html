@@ -1,15 +1,31 @@
 <div class="navbar navbar-fixed-top">
-  <div class="navbar-inner">
-    <div class="container">
-      <a class="brand" href="#/home">Redes Sociales Indigenas</a>
-      <div class="nav-collapse">
-        <ul class="nav">
-          <li class="home-menu"><a href="#/home">Home</a></li>
-          <li class="list-menu"><a href="#/clients">Menú 1</a></li>
-          <li class="new-menu"><a href="#/clients/new">Menú 2</a></li>
-        </ul>
-        <img class="ajax-loader" src="img/ajax-loader.gif" alt="Loading..." />
-      </div><!--/.nav-collapse -->
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="brand" href="#/home">Redes Sociales Indigenas</a>
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li class="home-menu"><a href="#/home">Home</a></li>
+                    <li class="project-menu"><a href="#/project">El Proyecto</a></li>
+                    <li class="members-menu"><a href="#/members">Integrantes</a></li>
+                    <li class="results-menu"><a href="#/results">Resultados</a></li>
+                </ul>
+                <ul class="nav pull-right">
+                    <li><a href="/signup">Registrarse</a></li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" href="#" data-toggle="dropdown">Ingresar <strong class="caret"></strong></a>
+                        <div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;">
+                            <form accept-charset="UTF-8">
+                                <input style="margin-bottom: 15px;" type="text" placeholder="Usuario" id="username" name="username">
+                                <input style="margin-bottom: 15px;" type="password" placeholder="Contraseña" id="password" name="password">
+                                <input style="float: left; margin-right: 10px;" type="checkbox" name="remember-me" id="remember-me" value="1">
+                                <label class="string optional" for="user_remember_me"> Recordarme</label>
+                                <input class="btn btn-primary btn-block" type="submit" id="loginButton" value="Ingresar">
+                            </form>
+                        </div>
+                    </li>
+                </ul>
+                <img class="ajax-loader" src="img/ajax-loader.gif" alt="Loading..." />
+            </div><!--/.nav-collapse -->
+        </div>
     </div>
-  </div>
 </div>
