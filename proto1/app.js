@@ -18,31 +18,36 @@ utils.loadConfig(__dirname + '/config', function(config) {
     });
     app.configure(function() {
         utils.ifEnv('production', function() {
-            // enable gzip compression
+// enable gzip compression
             app.use(gzippo.compress());
         });
         app.use(express.favicon());
         app.use(express['static'](__dirname + '/public'));
         app.use(express.bodyParser());
         app.use(express.methodOverride());
+        /*app.use(function(req, res, next) {
+            console.log('--- EXPRESS: ', req);
+            next();
+        });*/
         utils.ifEnv('production', function() {
             app.use(connectTimeout({
                 time: parseInt(config[ENV].REQ_TIMEOUT, 10)
             }));
         });
     });
-
     mongoose = utils.connectToDatabase(mongoose, config.db[ENV].main);
-
     // register models
     require('./app/models/client')(mongoose);
-
     // register controllers
-    ['clients', 'errors', 'account'].forEach(function(controller) {
+    app.get('/login', function(req, res, next) {
+        console.log('login request');
+        res.end('pepe');
+    });
+    ['clients','errors'].forEach(function(controller) {
         require('./app/controllers/' + controller + '_controller')(app, mongoose, config);
     });
-
     app.on('error', function(e) {
+        console.log('Error: ', e);
         if (e.code == 'EADDRINUSE') {
             log('Address in use, retrying...');
             setTimeout(function() {
@@ -53,7 +58,6 @@ utils.loadConfig(__dirname + '/config', function(config) {
             }, 1000);
         }
     });
-
     if (!module.parent) {
         app.listen(config[ENV].PORT, function() {
             app.serverUp = true;
@@ -64,10 +68,7 @@ utils.loadConfig(__dirname + '/config', function(config) {
     AppEmitter.on('checkApp', function() {
         AppEmitter.emit('getApp', app);
     });
-
 });
-
-
 /**
  * export AppEmitter for external services so that the callback can execute
  * when the app has finished loading the configuration
