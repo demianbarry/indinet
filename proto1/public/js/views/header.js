@@ -31,7 +31,7 @@ define('HeaderView', [
       $('.' + item).addClass('active');
     },
     login: function() {
-      $.get('/login', {
+      $.post('/login', {
         username: $('input[name=username]').val(),
         password: $('input[name=password]').val()
       }, function(data) {

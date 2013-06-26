@@ -1,5 +1,6 @@
 var connect = require('connect'),
         express = require('express'),
+        nodemailer = require('nodemailer'),
         connectTimeout = require('connect-timeout'),
         mongoose = require('mongoose'),
         gzippo = require('gzippo'),
@@ -38,12 +39,10 @@ utils.loadConfig(__dirname + '/config', function(config) {
     mongoose = utils.connectToDatabase(mongoose, config.db[ENV].main);
     // register models
     require('./app/models/client')(mongoose);
+    require('./app/models/account')(config, mongoose, nodemailer);
+    
     // register controllers
-    app.get('/login', function(req, res, next) {
-        console.log('login request');
-        res.end('pepe');
-    });
-    ['clients','errors'].forEach(function(controller) {
+    ['clients','accounts','errors'].forEach(function(controller) {
         require('./app/controllers/' + controller + '_controller')(app, mongoose, config);
     });
     app.on('error', function(e) {
