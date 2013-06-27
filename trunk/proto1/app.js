@@ -1,4 +1,5 @@
 var connect = require('connect'),
+        MemoryStore = connect.session.MemoryStore,
         express = require('express'),
         nodemailer = require('nodemailer'),
         connectTimeout = require('connect-timeout'),
@@ -19,17 +20,19 @@ utils.loadConfig(__dirname + '/config', function(config) {
     });
     app.configure(function() {
         utils.ifEnv('production', function() {
-// enable gzip compression
+            // enable gzip compression
             app.use(gzippo.compress());
         });
         app.use(express.favicon());
         app.use(express['static'](__dirname + '/public'));
         app.use(express.bodyParser());
+        app.use(express.cookieParser());
+        app.use(express.session({secret: "indinet secret key", store: new MemoryStore()}));
         app.use(express.methodOverride());
         /*app.use(function(req, res, next) {
-            console.log('--- EXPRESS: ', req);
-            next();
-        });*/
+         console.log('--- EXPRESS: ', req);
+         next();
+         });*/
         utils.ifEnv('production', function() {
             app.use(connectTimeout({
                 time: parseInt(config[ENV].REQ_TIMEOUT, 10)
@@ -39,10 +42,10 @@ utils.loadConfig(__dirname + '/config', function(config) {
     mongoose = utils.connectToDatabase(mongoose, config.db[ENV].main);
     // register models
     require('./app/models/client')(mongoose);
-    require('./app/models/account')(config, mongoose, nodemailer);
-    
+    require('./app/models/account')(mongoose);
+
     // register controllers
-    ['clients','accounts','errors'].forEach(function(controller) {
+    ['clients', 'accounts', 'errors'].forEach(function(controller) {
         require('./app/controllers/' + controller + '_controller')(app, mongoose, config);
     });
     app.on('error', function(e) {

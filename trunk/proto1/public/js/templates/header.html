@@ -9,6 +9,7 @@
                     <li class="members-menu"><a href="#/members">Integrantes</a></li>
                     <li class="results-menu"><a href="#/results">Resultados</a></li>
                 </ul>
+                <% if (typeof username == 'undefined') { %>
                 <ul class="nav pull-right">
                     <li><a href="/signup">Registrarse</a></li>
                     <li class="dropdown">
@@ -24,6 +25,11 @@
                         </div>
                     </li>
                 </ul>
+                <% } else { %>
+                    <ul class="nav pull-right">
+                        <li><a href="/logout"><% username %></a></li>
+                    </ul>
+                <% } %>
                 <img class="ajax-loader" src="img/ajax-loader.gif" alt="Loading..." />
             </div><!--/.nav-collapse -->
         </div>
