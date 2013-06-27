@@ -6,8 +6,10 @@ var utils = require('../../lib/utils'),
         AccountsController;
 
 AccountsController = function(app, mongoose, config) {
+    var Account = mongoose.model('Account');
+ 
     app.post('/login', function(req, res) {
-        console.log('login request');
+        
         var username = req.param('username', null);
         var password = req.param('password', null);
 
@@ -17,14 +19,15 @@ AccountsController = function(app, mongoose, config) {
             return;
         }
 
-        Account.login(email, password, function(success) {
+        //console.log('account type: %s, login type: ', typeof Account, typeof new Account().login);
+        Account.login(username, password, function(success) {
             if (!success) {
                 res.send(401);
                 return;
             }
             console.log('login was successful');
             req.session.loggedIn = true;
-            res.send(200);
+            res.send('{"username": "'+username+'"}', 200);
         });
     });
 };

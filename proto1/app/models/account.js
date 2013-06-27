@@ -1,24 +1,25 @@
-module.exports = function(config, mongoose, nodemailer) {
-  var crypto = require('crypto');
+module.exports = function(mongoose) {
+  var crypto = require('crypto'),
+   Schema    = mongoose.Schema,
+      Account;
 
-  var AccountSchema = new mongoose.Schema({
-    email:     { type: String, unique: true },
-    password:  { type: String },
+  Account = new Schema({
+    username:   { type: String, unique: true },
+    password:   { type: String },
     name: {
-      first:   { type: String },
-      last:    { type: String }
+      first:    { type: String },
+      last:     { type: String }
     },
     birthday: {
-      day:     { type: Number, min: 1, max: 31, required: false },
-      month:   { type: Number, min: 1, max: 12, required: false },
-      year:    { type: Number }
+      day:      { type: Number, min: 1, max: 31, required: false },
+      month:    { type: Number, min: 1, max: 12, required: false },
+      year:     { type: Number }
     },
-    photoUrl:  { type: String },
-    biography: { type: String },
-    cvUrl:     { type: String }
+    email:      { type: String, unique: true },
+    photoUrl:   { type: String },
+    cvUrl:      { type: String },
+    biography:  { type: String }
   });
-
-  var Account = mongoose.model('Account', AccountSchema);
 
   var registerCallback = function(err) {
     if (err) {
@@ -27,7 +28,7 @@ module.exports = function(config, mongoose, nodemailer) {
     return console.log('Account was created');
   };
 
-  var changePassword = function(accountId, newpassword) {
+  Account.statics.changePassword = function changePassword(accountId, newpassword) {
     var shaSum = crypto.createHash('sha256');
     shaSum.update(newpassword);
     var hashedPassword = shaSum.digest('hex');
@@ -37,7 +38,7 @@ module.exports = function(config, mongoose, nodemailer) {
     });
   };
 
-  var forgotPassword = function(email, resetPasswordUrl, callback) {
+  Account.statics.forgotPassword = function forgotPassword(email, resetPasswordUrl, callback) {
     var user = Account.findOne({email: email}, function findAccount(err, doc){
       if (err) {
         // Email address is not a valid user
@@ -61,15 +62,17 @@ module.exports = function(config, mongoose, nodemailer) {
     });
   };
 
-  var login = function(email, password, callback) {
+  Account.statics.login = function login(username, password, callback) {
+    console.log('Login de : ',password);
     var shaSum = crypto.createHash('sha256');
     shaSum.update(password);
-    Account.findOne({email:email,password:shaSum.digest('hex')},function(err,doc){
+    var Model = mongoose.model('Account');
+    Model.findOne({username:username,password:shaSum.digest('hex')},function(err,doc){
       callback(null!=doc);
     });
   };
 
-  var register = function(email, password, firstName, lastName) {
+  Account.statics.register = function register(email, password, firstName, lastName) {
     var shaSum = crypto.createHash('sha256');
     shaSum.update(password);
 
@@ -84,13 +87,7 @@ module.exports = function(config, mongoose, nodemailer) {
     });
     user.save(registerCallback);
     console.log('Save command was sent');
-  }
+  };
 
-  return {
-    register: register,
-    forgotPassword: forgotPassword,
-    changePassword: changePassword,
-    login: login,
-    Account: Account
-  }
+  return mongoose.model('Account', Account);
 }
