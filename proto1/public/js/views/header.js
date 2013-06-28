@@ -9,8 +9,8 @@ define('HeaderView', [
     HeaderView = Backbone.View.extend({
         initialize: function(options) {
             var ajaxLoader;
-
             this.template = _.template(tpl);
+            _.bindAll(this, "render");
 
             $('body').ajaxStart(function() {
                 ajaxLoader = ajaxLoader || $('.ajax-loader');
@@ -21,7 +21,8 @@ define('HeaderView', [
             });
         },
         events: {
-            "click #loginButton": "login"
+            "click #loginButton"    : "login",
+            "click #logoutButton"   : "logout"
         },
         render: function(user) {
             $(this.el).html(this.template(user));
@@ -32,19 +33,29 @@ define('HeaderView', [
             $('.' + item).addClass('active');
         },
         login: function() {
-            var data;
-            $.post('/login', {
-                username: $('input[name=username]').val(),
-                password: $('input[name=password]').val()
-            }, function(data) {
-                console.log('Bienvenido: ', JSON.parse(data).username);
-            }).error(function() {
-                $("#error").text('Imposible entrar.');
-                $("#error").slideDown();
-            });
+            doLogin(this.render);
+            return false;
+        },
+        logout: function() {
+            console.log("Logout");
             return false;
         }
     });
 
     return HeaderView;
 });
+
+function doLogin(post_ajax_render) {
+    var data;
+    $.post('/login', {
+        username: $('input[name=username]').val(),
+        password: $('input[name=password]').val()
+    }, function(data) {
+        console.log('Bienvenido: ', JSON.parse(data).username);
+        post_ajax_render(data);
+    }).error(function() {
+        $("#error").text('Imposible entrar.');
+        $("#error").slideDown();
+    });
+    //return false;
+}

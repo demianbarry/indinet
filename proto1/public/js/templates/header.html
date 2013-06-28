@@ -26,9 +26,16 @@
                     </li>
                 </ul>
                 <% } else { %>
-                    <ul class="nav pull-right">
-                        <li><a href="/logout"><% username %></a></li>
-                    </ul>
+                <ul class="nav pull-right">
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><% username %><strong class="caret"></strong></a>
+                        <div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;">
+                            <form accept-charset="UTF-8">
+                                <input class="btn btn-primary btn-block" type="submit" id="logoutButton" value="Salir">
+                            </form>
+                        </div>
+                    </li>
+                </ul>
                 <% } %>
                 <img class="ajax-loader" src="img/ajax-loader.gif" alt="Loading..." />
             </div><!--/.nav-collapse -->
