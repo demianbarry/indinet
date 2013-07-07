@@ -27,15 +27,18 @@ requirejs.config({
     'moment'           : 'lib/moment',
     'Mediator'         : 'lib/mediator',
     'App'              : 'App',
-    'Router'           : 'Router',
-    'ClientModel'      : 'models/client',
-    'ClientCollection' : 'collections/clients',
+    'RouterHome'       : 'RouterHome',
+    'RouterIndinet'    : 'RouterIndinet',
+    'AttributeTypeModel'      : 'models/attributeType',
+    'AttributeTypeCollection' : 'collections/attributeTypes',
     'HomeView'         : 'views/home',
     'NewsView'         : 'views/news',
     'HeaderView'       : 'views/header',
-    'ClientListView'   : 'views/clients/index',
-    'ClientEditView'   : 'views/clients/edit',
-    'ClientView'       : 'views/clients/show'
+    'IndinetMenuView'       : 'views/indinetMenu',
+    'IndinetView'      : 'views/indinet',
+    'AttributeTypeListView'   : 'views/attributeTypes/index',
+    'AttributeTypeEditView'   : 'views/attributeTypes/edit',
+    'AttributeTypeView'       : 'views/attributeTypes/show'
   }
 });
 

@@ -2,12 +2,14 @@ define('App', [
   'jquery',
   'underscore',
   'backbone',
-  'Router',
+  'RouterHome',
+  'RouterIndinet',
   'bootstrap'
-], function($, _, Backbone, Router) {
+], function($, _, Backbone, RouterHome, RouterIndinet) {
 
   function initialize() {
-    var app = new Router();
+    var app = new RouterHome();
+    var indinet = new RouterIndinet();
 
     Backbone.history.start();
   }

@@ -17,14 +17,14 @@ jsConfig = {
     'backbone'         : 'lib/backbone-amd',
     'bootstrap'        : 'lib/bootstrap',
     'moment'           : 'lib/moment',
-    'ClientModel'      : 'models/client',
-    'ClientCollection' : 'collections/clients',
+    'AttributeTypeModel'      : 'models/attributeType',
+    'AttributeTypeCollection' : 'collections/attributeTypes',
     'HomeView'         : 'views/home',
     'NewsView'         : 'views/news',
     'HeaderView'       : 'views/header',
-    'ClientListView'   : 'views/clients/index',
-    'ClientEditView'   : 'views/clients/edit',
-    'ClientView'       : 'views/clients/show'
+    'AttributeTypeListView'   : 'views/attributeTypes/index',
+    'AttributeTypeEditView'   : 'views/attributeTypes/edit',
+    'AttributeTypeView'       : 'views/attributeTypes/show'
   }
 };
 
