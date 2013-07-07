@@ -3,12 +3,17 @@ module.exports = function(mongoose) {
    Schema    = mongoose.Schema,
       Account;
 
+  var Rol = new mongoose.Schema ({
+     rol:       { type: String }
+  });
+  
   Account = new Schema({
     username:   { type: String, unique: true },
     password:   { type: String },
     name: {
       first:    { type: String },
-      last:     { type: String }
+      last:     { type: String },
+      full:     { type: String }
     },
     birthday: {
       day:      { type: Number, min: 1, max: 31, required: false },
@@ -18,7 +23,9 @@ module.exports = function(mongoose) {
     email:      { type: String, unique: true },
     photoUrl:   { type: String },
     cvUrl:      { type: String },
-    biography:  { type: String }
+    biography:  { type: String },
+    roles:       [Rol],
+    status:      { type: String }
   });
 
   var registerCallback = function(err) {
@@ -49,8 +56,8 @@ module.exports = function(mongoose) {
         smtpTransport.sendMail({
           from: 'thisapp@example.com',
           to: doc.email,
-          subject: 'SocialNet Password Request',
-          text: 'Click here to reset your password: ' + resetPasswordUrl
+          subject: 'IndiNet: requerimiento de claye',
+          text: 'Click aquí para blanquear su clave: ' + resetPasswordUrl
         }, function forgotPasswordResult(err) {
           if (err) {
             callback(false);
@@ -72,13 +79,13 @@ module.exports = function(mongoose) {
     });
   };
 
-  Account.statics.register = function register(email, password, firstName, lastName) {
+  Account.statics.register = function register(username, password, firstName, lastName) {
     var shaSum = crypto.createHash('sha256');
     shaSum.update(password);
 
-    console.log('Registering ' + email);
+    console.log('Registrando ' + username);
     var user = new Account({
-      email: email,
+      username: username,
       name: {
         first: firstName,
         last: lastName
@@ -90,4 +97,4 @@ module.exports = function(mongoose) {
   };
 
   return mongoose.model('Account', Account);
-}
+};

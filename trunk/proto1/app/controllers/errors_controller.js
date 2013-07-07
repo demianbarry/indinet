@@ -16,19 +16,6 @@ ErrorsController = function(app, mongoose) {
     throw new NotFound();
   });
 
-  app.error(function(err, req, res, next) {
-    if (err instanceof NotFound) {
-      if (err.msg && err.msg === 'json') {
-        res.json(null, 404);
-      } else {
-        res.send('404 - Page Not Found', 404);
-      }
-    } else {
-      log.err(err);
-      res.send('500 - Internal Server Error', 500);
-    }
-  });
-
 };
 
 module.exports = ErrorsController;
