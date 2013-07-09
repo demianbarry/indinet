@@ -41,13 +41,13 @@ AttributeTypesController = function(app, mongoose, config) {
     app.post(v1 + '/attributeTypes', function create(req, res, next) {
         var newAttributeType;
 
-        console.log('app/controllers/attributeTypes_controller.js app.post(attributeTypes 1');
+        //console.log('app/controllers/attributeTypes_controller.js app.post(attributeTypes 1');
         // disallow other fields besides those listed below
         newAttributeType = new AttributeType(_.pick(req.body, 'name', 'dataType', 'mandatory', 'validator'));
         newAttributeType.save(function(err) {
             var errors, code = 200, loc;
 
-            console.log('app/controllers/attributeTypes_controller.js newAttributeType.save 2 %s', err);
+            //console.log('app/controllers/attributeTypes_controller.js newAttributeType.save 2 %s', err);
 
             if (!err) {
                 loc = config.site_url + v1 + '/attributeTypes/' + newAttributeType._id;

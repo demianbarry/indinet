@@ -43,6 +43,6 @@ requirejs.config({
 });
 
 require(['App'], function(App, Client) {
-  console.log("App: ", JSON.stringify(App));
+  //console.log("App: ", JSON.stringify(App));
   App.initialize();
 });

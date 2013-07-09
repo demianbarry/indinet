@@ -38,7 +38,7 @@ define('RouterIndinet', [
             this.indinetMenuView.$el.hide();
         },
         indinet: function() {
-            console.log('js/RouterIndinet.js indinet 2');
+            //console.log('js/RouterIndinet.js indinet 2');
             
             // muestra/oculta componentes el menú de indinet
             $('.news-content').hide();
@@ -65,7 +65,7 @@ define('RouterIndinet', [
         showAttributeType: function(id) {
             var that = this, view;
 
-            console.log('js/ReuterIndinet.js showAttributeType 1');
+            //console.log('js/ReuterIndinet.js showAttributeType 1');
 
             this.indinetMenuView.select('attributes-menu');
 
