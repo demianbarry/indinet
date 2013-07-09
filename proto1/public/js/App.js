@@ -8,8 +8,8 @@ define('App', [
 ], function($, _, Backbone, RouterHome, RouterIndinet) {
 
   function initialize() {
-    var app = new RouterHome();
-    var indinet = new RouterIndinet();
+    app = new RouterHome();
+    indinet = new RouterIndinet();
 
     Backbone.history.start();
   }

@@ -28,6 +28,9 @@ define('RouterHome', [
             $('footer').fadeIn('slow');
         },
         home: function() {
+            //oculta/muestra secciones menú indinet si estuviera activo
+            this.elms['tab-content'].hide();
+            this.elms['news-content'].show();
             this.headerView.select('home-menu');
 
             if (!this.homeView) {
