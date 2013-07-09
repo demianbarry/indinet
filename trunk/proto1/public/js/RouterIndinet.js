@@ -40,7 +40,9 @@ define('RouterIndinet', [
         indinet: function() {
             console.log('js/RouterIndinet.js indinet 2');
             
-            // muestra el menú de indinet
+            // muestra/oculta componentes el menú de indinet
+            $('.news-content').hide();
+            $('.tab-content').show();
             this.indinetMenuView.$el.show();
 
             if (!this.indinetView) {
@@ -50,6 +52,8 @@ define('RouterIndinet', [
         },
         showAttributeTypes: function() {
             var that = this;
+            
+            this.indinetMenuView.select('attributes-menu');
 
             if (!this.attributeTypeListView) {
                 this.attributeTypeListView = new AttributeTypeListView();
@@ -62,6 +66,8 @@ define('RouterIndinet', [
             var that = this, view;
 
             console.log('js/ReuterIndinet.js showAttributeType 1');
+
+            this.indinetMenuView.select('attributes-menu');
 
             // pass _silent to bypass validation to be able to fetch the model
             model = new AttributeType({_id: id, _silent: true});
@@ -88,6 +94,8 @@ define('RouterIndinet', [
         addAttributeType: function() {
             var that = this, model, view;
 
+            this.indinetMenuView.select('attributes-menu');
+
             model = new AttributeType();
             view = new AttributeTypeEditView({model: model});
 
@@ -103,6 +111,8 @@ define('RouterIndinet', [
         },
         editAttributeType: function(id) {
             var that = this, model, view;
+
+            this.indinetMenuView.select('attributes-menu');
 
             // pass _silent to bypass validation to be able to fetch the model
             model = new AttributeType({_id: id, _silent: true});

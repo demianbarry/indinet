@@ -11,7 +11,20 @@
                 </ul>                
                 <% if (typeof username == 'undefined' || username == 'null') { %>
                 <ul class="nav pull-right">
-                    <li><a href="/signup">Registrarse</a></li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" href="#" data-toggle="dropdown">Registrarse <strong class="caret"></strong></a>
+                        <div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;">
+                            <form accept-charset="UTF-8">
+                                <input style="margin-bottom: 15px;" type="text" placeholder="Usuario" id="username" name="r-username">
+                                <input style="margin-bottom: 15px;" type="password" placeholder="Contraseña" id="password" name="r-password">
+                                <input style="margin-bottom: 15px;" type="password" placeholder="Repite Contraseña" id="re-password" name="r-re-password">
+                                <input style="margin-bottom: 15px;" type="text" placeholder="Nombre" id="name-first" name="r-name-first">
+                                <input style="margin-bottom: 15px;" type="text" placeholder="Apellido" id="name-last" name="r-name-last">
+                                <input style="margin-bottom: 15px;" type="email"  placeholder="eMail" id="email" name="r-email">
+                                <input class="btn btn-primary btn-block" type="submit" id="registerButton" value="Registrar">
+                            </form>
+                        </div>
+                    </li>
                     <li class="dropdown">
                         <a class="dropdown-toggle" href="#" data-toggle="dropdown">Ingresar <strong class="caret"></strong></a>
                         <div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;">
@@ -41,5 +54,5 @@
                 <img class="ajax-loader" src="img/ajax-loader.gif" alt="Loading..." />
             </div><!--/.nav-collapse -->
         </div>
-    </div>
+        </div>
 </div>
