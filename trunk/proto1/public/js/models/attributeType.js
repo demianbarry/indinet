@@ -47,9 +47,9 @@ define('AttributeTypeModel', [
                     errors.mandatory = "tipo de dato incorrecto";
                 }
 
-                console.log('js/models/attributeType.js validate 2 %s %d', JSON.stringify(errors),_.keys(errors).length);
+                //console.log('js/models/attributeType.js validate 2 %s %d', JSON.stringify(errors),_.keys(errors).length);
                 if (_.keys(errors).length) {
-                    console.log('js/models/attributeType.js validate 1');
+                    //console.log('js/models/attributeType.js validate 1');
                     return {
                         errors: errors
                     };

@@ -55,7 +55,7 @@ define('HeaderView', [
             $('.' + item).addClass('active');
         },
         login: function() {
-            console.log('js/views/header.js login 1');
+            //console.log('js/views/header.js login 1');
             doLogin(this.render);
             return false;
         },
@@ -85,13 +85,13 @@ define('HeaderView', [
 });
 
 function doLogin(post_ajax_render) {
-    console.log('js/views/header.js doLogin 1');
+    //console.log('js/views/header.js doLogin 1');
     var data;
     $.post('/account/login', {
         username: $('input[name=username]').val(),
         password: $('input[name=password]').val()
     }, function(data) {
-        console.log('Bienvenido: ', JSON.parse(data).username);
+        //console.log('Bienvenido: ', JSON.parse(data).username);
         post_ajax_render(JSON.parse(data).username);
     }).error(function() {
         $("#error").text('Imposible entrar.');
@@ -103,9 +103,9 @@ function doLogin(post_ajax_render) {
 function doLogout(post_ajax_render) {
     var data;
     $.get('/account/logout', function(data) {
-        console.log('js/views/header.js doLogout logout exitoso antes del render');
+        //console.log('js/views/header.js doLogout logout exitoso antes del render');
         post_ajax_render('null');
-        console.log('js/views/header.js doLogout logout exitoso antes del navigate');
+        //console.log('js/views/header.js doLogout logout exitoso antes del navigate');
         app.navigate('home', true);
     }).error(function() {
         $("#error").text('Imposible salir.');
@@ -116,7 +116,7 @@ function doLogout(post_ajax_render) {
 function doCheckAuth(post_ajax_render) {
     var data;
     $.get('/account/authenticated', {}, function(data) {
-        console.log('Bienvenido: ', data);
+        //console.log('Bienvenido: ', data);
         post_ajax_render(data);
     }).error(function() {
         $("#error").text('Imposible chequear.');
@@ -127,7 +127,7 @@ function doCheckAuth(post_ajax_render) {
 }
 
 function doRegister(post_ajax_render) {
-    console.log('js/views/header.js doregister 1 %s', $('input[name=r-username]').val());
+    //console.log('js/views/header.js doregister 1 %s', $('input[name=r-username]').val());
     var data;
 
     // chequea igualdad de password
@@ -143,7 +143,7 @@ function doRegister(post_ajax_render) {
         lastName: $('input[name=r-name-last]').val(),
         email: $('input[name=r-email]').val()
     }, function(data) {
-        console.log('regsitrado: ', JSON.parse(data).username);
+        //console.log('regsitrado: ', JSON.parse(data).username);
         post_ajax_render.renderSuccessMsg('usuario registrado exitosamente');
         //post_ajax_render.render();
     }).error(function() {

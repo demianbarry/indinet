@@ -25,7 +25,7 @@ AccountsController = function(app, mongoose, config) {
                 res.send(401);
                 return;
             }
-            console.log('login was successful');
+            //console.log('login was successful');
             req.session.loggedIn = true;
             req.session.username = username;
             res.send('{"username": "' + username + '"}', 200);
@@ -37,17 +37,17 @@ AccountsController = function(app, mongoose, config) {
         //console.log('arranca logout');
         req.session.destroy();
         //req.logout();
-        console.log('logout was successful');
+        //console.log('logout was successful');
         res.send('logout succefull', 200);
         return;
     });
 
     app.get('/account/authenticated', function isAuthenticated(req, res, next) {
         if (req.session && req.session.loggedIn) {
-            console.log('controllers/accounts_controller.js /account/authenticated usuario logeado: %s', req.session.username);
+            //console.log('controllers/accounts_controller.js /account/authenticated usuario logeado: %s', req.session.username);
             res.send(req.session.username);
         } else {
-            console.log('controllers/accounts_controller.js /account/authenticated usuario no logeado');
+            //console.log('controllers/accounts_controller.js /account/authenticated usuario no logeado');
             res.send('null');
         }
     });
@@ -74,12 +74,12 @@ AccountsController = function(app, mongoose, config) {
             } else {
                 //console.log('account type: %s, login type: ', typeof Account, typeof new Account().login);
                 Account.register(username, password, firstname, lastname, email, function(err) {
-                    console.log('success: %s', JSON.stringify(err))
+                    //console.log('success: %s', JSON.stringify(err))
                     if (err) {
                         res.send(401);
                         return;
                     }
-                    console.log('register of %s was successful', username);
+                    //console.log('register of %s was successful', username);
                     req.session.loggedIn = false;
                     res.send('{"username": "' + username + '"}', 200);
                     return;

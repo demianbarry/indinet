@@ -40,12 +40,12 @@ define('AttributeTypeEditView', [
             return this;
         },
         goBack: function(e) {
-            console.log('/js/views/attributeTypes/edit.js goBack 2');
+            //console.log('/js/views/attributeTypes/edit.js goBack 2');
             e.preventDefault();
             this.trigger('back');
         },
         saveAttributeType: function(e) {
-            console.log('/js/views/attributeTypes/edit.js saveAttributeType 1');
+            //console.log('/js/views/attributeTypes/edit.js saveAttributeType 1');
             var name, dataType, mandatory, validator, that;
 
             e.preventDefault();
@@ -66,14 +66,14 @@ define('AttributeTypeEditView', [
                 sync: true,
                 success: function(model, res) {
                     if (res && _.keys(res.errors).length) {
-                        console.log('/js/views/attributeTypes/edit.js saveAttributeType 4 %s', JSON.stringify(res));
+                        //console.log('/js/views/attributeTypes/edit.js saveAttributeType 4 %s', JSON.stringify(res));
                         that.renderErrMsg(res.errors);
                     } else {
                         model.trigger('save-success', model.get('_id'));
                     }
                 },
                 error: function(model, res) {
-                    console.log('/js/views/attributeTypes/edit.js saveAttributeType 2 %s', JSON.stringify(res));
+                    //console.log('/js/views/attributeTypes/edit.js saveAttributeType 2 %s', JSON.stringify(res));
                     if (res && res.errors) {
                         that.renderErrMsg(res.errors);
                     } else if (res.status === 404) {
@@ -85,7 +85,7 @@ define('AttributeTypeEditView', [
             });
         },
         renderErrMsg: function(err) {
-            console.log('/js/views/attributeTypes/edit.js saveAttributeType 3 %s', JSON.stringify(err));
+            //console.log('/js/views/attributeTypes/edit.js saveAttributeType 3 %s', JSON.stringify(err));
             var msgs = [];
 
             this.removeErrMsg();

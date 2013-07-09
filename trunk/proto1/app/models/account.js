@@ -100,7 +100,7 @@ module.exports = function(mongoose) {
     };
 
     Account.statics.login = function login(username, password, callback) {
-        console.log('Login de : ', password);
+        //console.log('Login de : ', password);
         var shaSum = crypto.createHash('sha256');
         shaSum.update(password);
         var Model = mongoose.model('Account');
@@ -114,7 +114,7 @@ module.exports = function(mongoose) {
         var shaSum = crypto.createHash('sha256');
         shaSum.update(password);
         
-        console.log('Registrando ' + username);
+        //console.log('Registrando ' + username);
         var user = new Account({
             username: username,
             name: {
@@ -125,7 +125,7 @@ module.exports = function(mongoose) {
             password: shaSum.digest('hex'),
             email: email
         });
-        console.log('user: %s', JSON.stringify(user));
+        //console.log('user: %s', JSON.stringify(user));
         user.save(function(err) {
             callback(err);
         });

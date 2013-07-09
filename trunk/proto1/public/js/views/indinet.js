@@ -14,7 +14,7 @@ define('IndinetView', [
             'click ul.nav-tabs a': 'tabClicked',
         },
         tabClicked: function(e) {
-            console.log('js/views/indinet.js tabClicked 1');
+            //console.log('js/views/indinet.js tabClicked 1');
             e.preventDefault();
             $(e.target).tab('show');
         },
