@@ -1,0 +1,64 @@
+<div class="row">
+    <div class="span6">
+
+        <div class="page-header">
+            <h1>Usuario: <%= account.name.full %></h1>
+        </div>
+
+        <div>
+            <table class="table table-striped">
+                <tbody>
+                    <tr>
+                        <td><h6>Usuario:</h6></td>
+                        <td>
+                            <i class="icon-user"></i>
+                            <%= account.username %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><h6>Cumpleaños:</h6></td>
+                        <td>
+                            <i class="icon-calendar"></i>
+                            <%= account.birthday %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><h6>eMail:</h6></td>
+                        <td>
+                            <i class="icon-inbox"></i>
+                            <%= account.email %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><h6>Currículum Vitae:</h6></td>
+                        <td>
+                            <i class="icon-bookmark"></i>
+                            <a href="<%= account.cvUrl %>" target="_blank"><%= account.name.full %></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><h6>Biografía:</h6></td>
+                        <td>
+                            <i class="icon-certificate"></i>
+                            <%= account.biography %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><h6>Roles:</h6></td>
+                        <td>
+                            <i class="icon-tags"></i>
+                            <%= account.roles%>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="form-actions">
+            <a href="#/indinet/accounts/<%= account._id %>/edit" class="btn edit-btn">Editar</a>
+            <button class="btn delete-btn">Eliminar</button>
+            <a href="#/indinet/accounts" class="btn back-btn">Regresar</a>
+        </div>
+
+    </div>
+</div>

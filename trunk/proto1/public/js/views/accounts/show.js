@@ -1,29 +1,29 @@
-define('AttributeTypeView', [
+define('AccountView', [
     'jquery',
     'underscore',
     'backbone',
     'moment',
-    'text!templates/attributeTypes/show.html',
-    'AttributeTypeModel'
-], function($, _, Backbone, moment, tpl, AttributeType) {
-    var AttributeTypeView;
+    'text!templates/accounts/show.html',
+    'AccountModel'
+], function($, _, Backbone, moment, tpl, Account) {
+    var AccountView;
 
-    AttributeTypeView = Backbone.View.extend({
+    AccountView = Backbone.View.extend({
         initialize: function() {
             this.template = _.template(tpl);
         },
         events: {
-            "click .delete-btn": "removeAttributeType",
+            "click .delete-btn": "removeAccount",
         },
         render: function() {
             var that = this, tmpl;
 
-            tmpl = that.template({attributeType: this.model.toJSON()});
+            tmpl = that.template({account: this.model.toJSON()});
             $(that.el).html(tmpl);
 
             return this;
         },
-        removeAttributeType: function(e) {
+        removeAccount: function(e) {
             e.preventDefault();
 
             this.model.destroy({
@@ -42,5 +42,5 @@ define('AttributeTypeView', [
         }
     });
 
-    return AttributeTypeView;
+    return AccountView;
 });

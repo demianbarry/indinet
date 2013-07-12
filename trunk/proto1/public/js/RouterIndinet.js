@@ -7,22 +7,30 @@ define('RouterIndinet', [
     'AttributeTypeListView',
     'AttributeTypeView',
     'AttributeTypeEditView',
-    'AttributeTypeModel'
+    'AccountListView',
+    'AccountView',
+    'AccountEditView',
+    'AttributeTypeModel',
+    'AccountModel'
 ], function($, _, Backbone, IndinetView, IndinetMenuView, AttributeTypeListView,
-        AttributeTypeView, AttributeTypeEditView, AttributeType) {
+        AttributeTypeView, AttributeTypeEditView,
+        AccountListView, AccountView, AccountEditView, AttributeType, Account) {
     var IndinetRouter;
 
     IndinetRouter = Backbone.Router.extend({
         routes: {
             'indinet': 'indinet',
-            'indinet/attributeTypes': 'showAttributeTypes', 
+            'indinet/attributeTypes': 'showAttributeTypes',
             'indinet/attributeTypes/new': 'addAttributeType',
             'indinet/attributeTypes/:id': 'showAttributeType',
-            'indinet/attributeTypes/:id/edit': 'editAttributeType'
+            'indinet/attributeTypes/:id/edit': 'editAttributeType',
+            'indinet/accounts': 'showAccounts',
+            'indinet/accounts/new': 'addAccount',
+            'indinet/accounts/:id': 'showAccount',
+            'indinet/accounts/:id/edit': 'editAccount'
         },
         initialize: function() {
-            this.attributeTypeView = {};
-            this.attributeTypeEditView = {};
+            this.accountSession = {};
             this.indinetMenuView = new IndinetMenuView();
 
             // cached elements
@@ -39,7 +47,7 @@ define('RouterIndinet', [
         },
         indinet: function() {
             //console.log('js/RouterIndinet.js indinet 2');
-            
+
             // muestra/oculta componentes el menú de indinet
             $('.news-content').hide();
             $('.tab-content').show();
@@ -52,7 +60,7 @@ define('RouterIndinet', [
         },
         showAttributeTypes: function() {
             var that = this;
-            
+
             this.indinetMenuView.select('attributes-menu');
 
             if (!this.attributeTypeListView) {
@@ -141,6 +149,99 @@ define('RouterIndinet', [
                 }
             });
 
+        },
+        showAccounts: function() {
+            var that = this;
+
+            this.indinetMenuView.select('usuarios-menu');
+
+            if (!this.accountListView) {
+                this.accountListView = new AccountListView();
+            }
+            this.accountListView.render(function() {
+                that.elms['page-content'].html(that.accountListView.el);
+            });
+        },
+        showAccount: function(id) {
+            var that = this, view;
+
+            //console.log('js/ReuterIndinet.js showAttributeType 1');
+
+            this.indinetMenuView.select('usuarios-menu');
+
+            // pass _silent to bypass validation to be able to fetch the model
+            model = new Account({_id: id, _silent: true});
+            model.fetch({
+                success: function(model) {
+                    model.unset('_silent');
+                    
+                    //console.log('js/RouterIndinet.js showAccount Account model recuperado: %s',JSON.stringify(model));
+                    view = new AccountView({model: model});
+                    that.elms['page-content'].html(view.render().el);
+                    view.model.on('delete-success', function() {
+                        delete view;
+                        that.navigate('/indinet/accounts', {trigger: true});
+                    });
+                },
+                error: function(model, res) {
+                    if (res.status === 404) {
+                        // TODO: handle 404 Not Found
+                    } else if (res.status === 500) {
+                        // TODO: handle 500 Internal Server Error
+                    }
+                }
+            });
+        },
+        addAccount: function() {
+            var that = this, model, view;
+
+            this.indinetMenuView.select('usuarios-menu');
+
+            model = new Account();
+            console.log('js/RouteIndinet.js addAccount model %s',JSON.stringify(model));
+            view = new AccountEditView({model: model});
+
+            this.elms['page-content'].html(view.render().el);
+            view.on('back', function() {
+                delete view;
+                that.navigate('#/indinet/accounts', {trigger: true});
+            });
+            view.model.on('save-success', function(id) {
+                delete view;
+                that.navigate('#/indinet/accounts/' + id, {trigger: true});
+            });
+        },
+        editAccount: function(id) {
+            var that = this, model, view;
+
+            this.indinetMenuView.select('usuarios-menu');
+
+            // pass _silent to bypass validation to be able to fetch the model
+            model = new Account({_id: id, _silent: true});
+            model.fetch({
+                success: function(model) {
+                    model.unset('_silent');
+
+                    // Create & render view only after model has been fetched
+                    view = new AccountEditView({model: model});
+                    that.elms['page-content'].html(view.render().el);
+                    view.on('back', function() {
+                        delete view;
+                        that.navigate('#/indinet/accounts/' + id, {trigger: true});
+                    });
+                    view.model.on('save-success', function() {
+                        delete view;
+                        that.navigate('#/indinet/accounts/' + id, {trigger: true});
+                    });
+                },
+                error: function(model, res) {
+                    if (res.status === 404) {
+                        // TODO: handle 404 Not Found
+                    } else if (res.status === 500) {
+                        // TODO: handle 500 Internal Server Error
+                    }
+                }
+            });
         }
     });
 

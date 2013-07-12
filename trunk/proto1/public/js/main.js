@@ -24,6 +24,7 @@ requirejs.config({
     'underscore'       : 'lib/underscore-amd',
     'backbone'         : 'lib/backbone-amd',
     'bootstrap'        : 'lib/bootstrap',
+    'bootstrap-multivalue' : 'lib/bootstrap-multivalue',
     'moment'           : 'lib/moment',
     'Mediator'         : 'lib/mediator',
     'App'              : 'App',
@@ -38,7 +39,13 @@ requirejs.config({
     'IndinetView'      : 'views/indinet',
     'AttributeTypeListView'   : 'views/attributeTypes/index',
     'AttributeTypeEditView'   : 'views/attributeTypes/edit',
-    'AttributeTypeView'       : 'views/attributeTypes/show'
+    'AttributeTypeView'       : 'views/attributeTypes/show',
+    'AccountListView'   : 'views/accounts/index',
+    'AccountEditView'   : 'views/accounts/edit',
+    'AccountView'       : 'views/accounts/show',
+    'AccountModel'      : 'models/account',
+    'AccountCollection' : 'collections/accounts',
+
   }
 });
 
