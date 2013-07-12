@@ -5,7 +5,6 @@ define('HeaderView', [
     'text!templates/header.html'
 ], function($, _, Backbone, tpl) {
     var HeaderView;
-    //var username = 'null';
 
     HeaderView = Backbone.View.extend({
         initialize: function(options) {
@@ -44,7 +43,8 @@ define('HeaderView', [
         events: {
             "click #loginButton": "login",
             "click #logoutButton": "logout",
-            "click #registerButton": "register"
+            "click #registerButton": "register",
+            "click #myAccountButton": "myAccount"
         },
         render: function(username) {
             $(this.el).html(this.template({username: username}));
@@ -66,6 +66,14 @@ define('HeaderView', [
         register: function() {
             doRegister(this);
             return false;
+        },
+        myAccount: function() {
+            if (indinet.accountSession._id !== 'undefined') {
+                console.log('js/RouterIndinet.js myAccount %s', JSON.stringify(indinet.accountSession));
+                indinet.navigate('#/indinet/accounts/' + indinet.accountSession._id);
+            } else {
+                app.navigate('home', true);
+            }
         },
         renderSuccessMsg: function(msg) {
             $(this.el).find('form').after(this.successTmpl({msg: msg}));
@@ -91,8 +99,10 @@ function doLogin(post_ajax_render) {
         username: $('input[name=username]').val(),
         password: $('input[name=password]').val()
     }, function(data) {
-        //console.log('Bienvenido: ', JSON.parse(data).username);
-        post_ajax_render(JSON.parse(data).username);
+        // registra el usuario al conectado
+        indinet.accountSession = data;
+        //console.log('Bienvenido: ', indinet.accountSession.username);
+        post_ajax_render(indinet.accountSession.username);
     }).error(function() {
         $("#error").text('Imposible entrar.');
         $("#error").slideDown();
@@ -104,7 +114,8 @@ function doLogout(post_ajax_render) {
     var data;
     $.get('/account/logout', function(data) {
         //console.log('js/views/header.js doLogout logout exitoso antes del render');
-        post_ajax_render('null');
+        indinet.accountSession = {};
+        post_ajax_render();
         //console.log('js/views/header.js doLogout logout exitoso antes del navigate');
         app.navigate('home', true);
     }).error(function() {
@@ -116,8 +127,12 @@ function doLogout(post_ajax_render) {
 function doCheckAuth(post_ajax_render) {
     var data;
     $.get('/account/authenticated', {}, function(data) {
-        //console.log('Bienvenido: ', data);
-        post_ajax_render(data);
+        //console.log('Bienvenido: ', JSON.stringify(data));
+        if (data.username !== 'undefined') {
+            post_ajax_render(data.username);
+        } else {
+            post_ajax_render();
+        }
     }).error(function() {
         $("#error").text('Imposible chequear.');
         $("#error").slideDown();
@@ -139,11 +154,11 @@ function doRegister(post_ajax_render) {
     $.post('/account/register', {
         username: $('input[name=r-username]').val(),
         password: $('input[name=r-password]').val(),
-        firstName: $('input[name=r-name-first]').val(),
-        lastName: $('input[name=r-name-last]').val(),
+        firstname: $('input[name=r-name-first]').val(),
+        lastname: $('input[name=r-name-last]').val(),
         email: $('input[name=r-email]').val()
     }, function(data) {
-        //console.log('regsitrado: ', JSON.parse(data).username);
+        //console.log('regsitrado: ', data.username);
         post_ajax_render.renderSuccessMsg('usuario registrado exitosamente');
         //post_ajax_render.render();
     }).error(function() {

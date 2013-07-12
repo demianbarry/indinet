@@ -3,29 +3,23 @@ module.exports = function(mongoose) {
             Schema = mongoose.Schema,
             Account;
 
-    var Rol = new mongoose.Schema({
-        rol: {type: String}
-    });
+    var estados = 'generado activo baja bloqueado'.split(' ');
 
     Account = new Schema({
-        username: {type: String, unique: true},
-        password: {type: String},
+        username: {type: String, unique: true, required: true},
+        password: {type: String, required: true},
         name: {
-            first: {type: String},
-            last: {type: String},
-            full: {type: String}
+            first: {type: String, required: true},
+            last: {type: String, required: true},
+            full: {type: String, required: true}
         },
-        birthday: {
-            day: {type: Number, min: 1, max: 31, required: false},
-            month: {type: Number, min: 1, max: 12, required: false},
-            year: {type: Number}
-        },
-        email: {type: String, unique: true},
+        birthday: {type: Date, required: false },
+        email: {type: String, unique: true, required: true},
         photoUrl: {type: String},
         cvUrl: {type: String},
         biography: {type: String},
-        roles: [Rol],
-        status: {type: String}
+        roles: {type: String, required: true, default: 'usuario'},
+        status: {type: String, enum: estados, required: true, default: 'generado'}
     });
 
     var registerCallback = function(err) {
@@ -49,7 +43,7 @@ module.exports = function(mongoose) {
         like(query, 'username', params.username);
         like(query, 'email', params.email);
         
-        console.log('query: %s', JSON.stringify(query));
+        //console.log('query: %s', JSON.stringify(query));
         
         query.exec(callback);
     };
@@ -105,27 +99,27 @@ module.exports = function(mongoose) {
         shaSum.update(password);
         var Model = mongoose.model('Account');
         Model.findOne({username: username, password: shaSum.digest('hex')}, function(err, doc) {
-            callback(null != doc);
+            callback(null != doc, doc);
         });
     };
 
-    Account.statics.register = function register(username, password, firstName, lastName, email, callback) {
+    Account.statics.register = function register(username, password, firstname, lastname, email, callback) {
         var Account = mongoose.model('Account', Account);
         var shaSum = crypto.createHash('sha256');
         shaSum.update(password);
         
         //console.log('Registrando ' + username);
+        var name={};
+        name.first = firstname;
+        name.last = lastname;
+        name.full = lastname + ', ' + firstname;
         var user = new Account({
             username: username,
-            name: {
-                first: firstName,
-                last: lastName,
-                full: lastName + ', ' + firstName
-            },
+            name: name,
             password: shaSum.digest('hex'),
             email: email
         });
-        //console.log('user: %s', JSON.stringify(user));
+        console.log('user: %s', JSON.stringify(user));
         user.save(function(err) {
             callback(err);
         });

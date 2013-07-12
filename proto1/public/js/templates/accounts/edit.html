@@ -1,0 +1,123 @@
+<div class="row">
+    <div class="span8">
+
+        <div class="page-header">        
+            <h1><% if(typeof account.username !== 'undefined'){ %>Editar usuario: <%= account.username %> <% } else {%>Nuevo usuario<% } %></h1>
+        </div>
+
+        <form class="form-horizontal">
+            <fieldset>
+
+                <div class="control-group">
+                    <label for="username-input" class="control-label">Username</label>
+                    <div class="controls">
+                        <div class="input-prepend">
+                            <span class="add-on">
+                                <i class="icon-user"></i>
+                            </span>
+                            <input type="text" class="input-xlarge" id="username-input" value="<%= account.username %>" />
+                            <p class="help-block">Ingrese nombre de usuario para conectarse a la aplicación.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="first-name-input" class="control-label">Nombre</label>
+                    <div class="controls">
+                        <div class="input-prepend">
+                            <span class="add-on">
+                                <i class="icon-user"></i>
+                            </span>
+                            <% if(typeof account.name !== 'undefined') { %>
+                            <input type="text" class="input-xlarge" id="first-name-input" value="<%= account.name.first %>" />
+                            <% } else { %>
+                            <input type="text" class="input-xlarge" id="first-name-input" />
+                            <% } %>
+                            <p class="help-block">Ingrese nombre del usuario.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="last-name-input" class="control-label">Apellido</label>
+                    <div class="controls">
+                        <div class="input-prepend">
+                            <span class="add-on">
+                                <i class="icon-user"></i>
+                            </span>
+                            <% if(typeof account.name !== 'undefined') { %>
+                            <input type="text" class="input-xlarge" id="last-name-input" value="<%= account.name.last %>" />
+                            <% } else { %>
+                            <input type="text" class="input-xlarge" id="last-name-input" />
+                            <% } %>
+                            <p class="help-block">Ingrese apellido del usuario.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="email-input" class="control-label">eMail</label>
+                    <div class="controls">
+                        <div class="input-prepend">
+                            <span class="add-on">
+                                <i class="icon-inbox"></i>
+                            </span>
+                            <input type="email" class="input-xlarge" id="email-input" value="<%= account.email %>" />
+                            <p class="help-block">Ingrese eMail del usuario</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="cvUrl-input" class="control-label">Currículum Vitae</label>
+                    <div class="controls">
+                        <div class="input-prepend">
+                            <span class="add-on">
+                                <i class="icon-bookmark"></i>
+                            </span>
+                            <input type="url" class="input-xlarge" id="cvUrl-input" value="<%= account.cvUrl %>" />
+                            <p class="help-block">Ingrese la URL del CV del usuario</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="biography-input" class="control-label">Biografía</label>
+                    <div class="controls">
+                        <div class="input-prepend">
+                            <span class="add-on">
+                                <i class="icon-pencil"></i>
+                            </span>
+                            <textarea rows="4" style="alignment-adjust: auto" class="input-xlarge" id="biography-input" ><%= account.biography%></textarea>
+                            <p class="help-block">Ingrese biografia del usuario</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="roles-input" class="control-label">roles</label>
+                    <div class="controls">
+                        <div class="input-prepend">
+                            <span class="add-on">
+                                <i class="icon-user"></i>
+                            </span>
+                            <input type="text" class="input-xlarge" id="roles-input" value="<%= account.roles %>" 
+                                   placeholder="rol" autocomplete="off"
+                                   data-coprovide="multivalue" data-provide="typeahead" 
+                                   data-multivalue-option='{"menuAlign":"top"}'
+                                   data-source='["administrador","director","investigador","becario","usuario"]'
+                            />
+                            <p class="help-block">Ingrese roles del susuario</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a class="btn save-btn">Guardar</a>
+                    <a class="btn back-btn">Regresar</a>
+                </div>
+
+            </fieldset>
+        </form>
+    </div>
+</div>

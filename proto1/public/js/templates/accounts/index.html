@@ -1,0 +1,45 @@
+<div class="row">
+    <div class="span12">
+
+        <div class="page-header">
+            <h1>Lista de Usuarios</h1>
+        </div>
+
+        <div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th><i class="icon-user"></i>Usuario</th>
+                        <th><i class="icon-tag"></i>Nombre</th>
+                        <th><i class="icon-tag"></i>eMail</th>
+                        <th><i class="icon-ok"></i>Biografía</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% _.each(accounts, function(account) { %>
+                    <tr>
+                        <td>
+                            <a href="#/indinet/accounts/<%- account._id %>"><%- account.username %></a>
+                        </td>
+                        <td>
+                            <%- account.name.full %></a>
+                        </td>
+                        <td>
+                            <%- account.email %>
+                        </td>
+                        <td>
+                            <%= account.biography %>
+                        </td>
+                    </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+        <div class="form-actions">
+            <a href="#/indinet/accounts/new" class="btn new-btn">Nuevo usuario</a>
+        </div>
+
+
+
+    </div>
+</div>

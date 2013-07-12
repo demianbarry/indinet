@@ -1,4 +1,5 @@
-var utils = require('../../lib/utils'),
+var v1 = '/api/v1',
+        utils = require('../../lib/utils'),
         _ = require('underscore'),
         NotFound = utils.NotFound,
         checkErr = utils.checkErr,
@@ -20,15 +21,15 @@ AccountsController = function(app, mongoose, config) {
         }
 
         //console.log('account type: %s, login type: ', typeof Account, typeof new Account().login);
-        Account.login(username, password, function(success) {
+        Account.login(username, password, function(success,account) {
             if (!success) {
                 res.send(401);
                 return;
             }
             //console.log('login was successful');
             req.session.loggedIn = true;
-            req.session.username = username;
-            res.send('{"username": "' + username + '"}', 200);
+            req.session.accountSession = account;
+            res.json(account, 200);
             return;
         });
     });
@@ -44,11 +45,11 @@ AccountsController = function(app, mongoose, config) {
 
     app.get('/account/authenticated', function isAuthenticated(req, res, next) {
         if (req.session && req.session.loggedIn) {
-            //console.log('controllers/accounts_controller.js /account/authenticated usuario logeado: %s', req.session.username);
-            res.send(req.session.username);
+            //console.log('controllers/accounts_controller.js /account/authenticated usuario logeado: %s', req.session.accountSession.username);
+            res.json(req.session.accountSession);
         } else {
             //console.log('controllers/accounts_controller.js /account/authenticated usuario no logeado');
-            res.send('null');
+            res.json({});
         }
     });
 
@@ -56,7 +57,7 @@ AccountsController = function(app, mongoose, config) {
 
         var username = req.param('username', null);
         var password = req.param('password', null);
-        var firstname = req.param('fisrtname', null);
+        var firstname = req.param('firstname', null);
         var lastname = req.param('lastname', null);
         var email = req.param('email', null);
 
@@ -76,6 +77,7 @@ AccountsController = function(app, mongoose, config) {
                 Account.register(username, password, firstname, lastname, email, function(err) {
                     //console.log('success: %s', JSON.stringify(err))
                     if (err) {
+                        console.log(JSON.stringify(err));
                         res.send(401);
                         return;
                     }
@@ -85,6 +87,108 @@ AccountsController = function(app, mongoose, config) {
                     return;
                 });
             }
+        });
+    });
+
+    app.get(v1 + '/accounts', function index(req, res, next) {
+        Account.search(req.query, function(err, account) {
+            checkErr(
+                    next,
+                    [{cond: err}],
+            function() {
+                // TODO: finish etag support here, check for If-None-Match
+                res.header('ETag', utils.etag(account));
+                res.json(account);
+            }
+            );
+        });
+    });
+
+    app.get(v1 + '/accounts/:id', function show(req, res, next) {
+        Account.findById(req.params.id, function(err, account) {
+            checkErr(
+                    next,
+                    [{cond: err}, {cond: !account, err: new NotFound('json')}],
+            function() {
+                // TODO: finish etag support here, check for If-None-Match
+                res.header('ETag', utils.etag(account));
+                res.json(account);
+            }
+            );
+        });
+    });
+
+    app.post(v1 + '/accounts', function create(req, res, next) {
+        var newAccount;
+
+        //console.log('app/controllers/accounts_controller.js app.post(accounts 1');
+        // disallow other fields besides those listed below
+        newAccount = new Account(_.pick(req.body, 'username', 'name', 'email', 'cvUrl', 'biography', 'roles'));
+        newAccount.save(function(err) {
+            var errors, code = 200, loc;
+
+            //console.log('app/controllers/accounts_controller.js newAccount.save 2 %s', err);
+
+            if (!err) {
+                loc = config.site_url + v1 + '/accounts/' + newAccount._id;
+                res.setHeader('Location', loc);
+                res.json(newAccount, 201);
+            } else {
+                errors = utils.parseDbErrors(err, config.error_messages);
+                if (errors.code) {
+                    code = errors.code;
+                    delete errors.code;
+                    // TODO: better better logging system
+                    log(err);
+                }
+                res.json(errors, code);
+            }
+        });
+    });
+
+    app.put(v1 + '/accounts/:id', function update(req, res, next) {
+        Account.findById(req.params.id, function(err, account) {
+            checkErr(
+                    next,
+                    [{cond: err}, {cond: !account, err: new NotFound('json')}],
+            function() {
+                var newAttributes;
+
+                // modify resource with allowed attributes
+                newAttributes = _.pick(req.body, 'username', 'name', 'email', 'cvUrl', 'biography', 'roles');
+                account = _.extend(account, newAttributes);
+
+                account.save(function(err) {
+                    var errors, code = 200;
+
+                    if (!err) {
+                        // send 204 No Content
+                        res.send();
+                    } else {
+                        errors = utils.parseDbErrors(err, config.error_messages);
+                        if (errors.code) {
+                            code = errors.code;
+                            delete errors.code;
+                            log(err);
+                        }
+                        res.json(errors, code);
+                    }
+                });
+            }
+            );
+        });
+    });
+
+    app.del(v1 + '/accounts/:id', function destroy(req, res, next) {
+        Account.findById(req.params.id, function(err, account) {
+            checkErr(
+                    next,
+                    [{cond: err}, {cond: !account, err: new NotFound('json')}],
+            function() {
+                account.remove();
+                res.json({});
+            }
+            );
         });
     });
 
