@@ -32,6 +32,7 @@ define('RouterIndinet', [
         initialize: function() {
             this.accountSession = {};
             this.indinetMenuView = new IndinetMenuView();
+            this.attributeTypeListView = new AttributeTypeListView();
 
             // cached elements
             this.elms = {
@@ -59,16 +60,18 @@ define('RouterIndinet', [
             this.elms['page-content'].html(this.indinetView.render().el);
         },
         showAttributeTypes: function() {
-            var that = this;
 
             this.indinetMenuView.select('attributes-menu');
 
             if (!this.attributeTypeListView) {
                 this.attributeTypeListView = new AttributeTypeListView();
             }
+            this.elms['page-content'].html(this.attributeTypeListView.render().el);
+            /*
             this.attributeTypeListView.render(function() {
                 that.elms['page-content'].html(that.attributeTypeListView.el);
             });
+            */
         },
         showAttributeType: function(id) {
             var that = this, view;
