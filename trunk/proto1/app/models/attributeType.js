@@ -3,7 +3,7 @@ module.exports = function(mongoose) {
             Schema = mongoose.Schema,
             AttributeType;
 
-    var dataTypes = 'string number geopoint rango stringList numberList poligon'.split(' ');
+    var dataTypes = 'string number date geopoint numberRange dateRange stringList numberList poligon'.split(' ');
     var mandatoryObjects = 'nodo relación ambos opcional'.split(' ');
 
     AttributeType = new Schema({

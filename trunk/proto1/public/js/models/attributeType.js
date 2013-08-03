@@ -38,7 +38,7 @@ define('AttributeTypeModel', [
                 }
 
                 // check valid dataType
-                if ('string number geopoint stringList stringNumber poligon'.indexOf(attrs.dataType) === -1) {
+                if ('string number date geopoint numberRange dateRange stringList numberList poligon'.indexOf(attrs.dataType) === -1) {
                     errors.dataType = "tipo de dato incorrecto";
                 }
 
