@@ -1,0 +1,26 @@
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th><i class="icon-tag"></i>Tipo</th>
+                <th><i class="icon-user"></i>Nombre</th>
+                <th><i class="icon-asterisk"></i>ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% _.each(nodes, function(node) { %>
+            <tr>
+                <td>
+                    <%- node._node._data.data['tipo'] %>
+                </td>
+                <td>
+                    <%- node._node._data.data['nombre'] %>
+                </td>
+                <td class="btn-primary">
+                    <a href="#/indinet/nodes/<%- node._id %>">Editar: <%- node._id %></a>
+                </td>
+            </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,31 @@
+<div class="row">
+    <div class="span6">
+
+        <div class="page-header">
+            <h1>Nodo: <%= node._node._data.data['nombre'] %></h1>
+        </div>
+
+        <div>
+            <table class="table table-striped">
+                <tbody>
+                    <% _.each(_.keys(node._node._data.data),function(attributeName) { %>
+                    <tr>
+                        <td><h6><%= attributeName %>:</h6></td>
+                        <td>
+                            <i class="icon-tag"></i>
+                            <%= node._node._data.data[attributeName] %></a>
+                        </td>
+                    </tr>
+                     <% }); %>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="form-actions">
+            <a href="#/indinet/nodes/<%= node._id %>/edit" class="btn edit-btn">Editar</a>
+            <button class="btn delete-btn">Eliminar</button>
+            <a href="#/indinet/nodes" class="btn back-btn">Regresar</a>
+        </div>
+
+    </div>
+</div>

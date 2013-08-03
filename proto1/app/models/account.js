@@ -80,7 +80,7 @@ module.exports = function(mongoose) {
                 smtpTransport.sendMail({
                     from: 'thisapp@example.com',
                     to: doc.email,
-                    subject: 'IndiNet: requerimiento de claye',
+                    subject: 'IndiNet: requerimiento de clave',
                     text: 'Click aquí para blanquear su clave: ' + resetPasswordUrl
                 }, function forgotPasswordResult(err) {
                     if (err) {

@@ -1,0 +1,76 @@
+<div class="row">
+    <div class="span8">
+
+        <div class="page-header">        
+            <h1><% if(attributeType.name !== ''){ %>Editar <% } else {%>Nuevo <% } %>atributo: <%= attributeType.name %></h1>
+        </div>
+
+        <form class="form-horizontal">
+            <fieldset>
+
+                <div class="control-group">
+                    <label for="name-input" class="control-label">Nombre</label>
+                    <div class="controls">
+                        <div class="input-prepend">
+                            <span class="add-on">
+                                <i class="icon-user"></i>
+                            </span>
+                            <input type="text" class="input-xlarge" id="name-input" value="<%= attributeType.name %>" />
+                            <p class="help-block">Ingrese nombre de atributo, debe estar entre 2 y 100 caracteres.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="dataType-input" class="control-label">Tipo de dato</label>
+                    <div class="controls">
+                        <div class="input-prepend">
+                            <span class="add-on">
+                                <i class="icon-tag"></i>
+                            </span>
+                            <input type="text" class="input-xlarge" id="dataType-input" value="<%= attributeType.dataType %>" 
+                                   data-provide="typeahead" data-items="5" autocomplete="off" 
+                                   data-source='["string", "number", "geopoint", "rango", "stringList", "numberList", "poligon"]' />
+                            <p class="help-block">Ingrese un tipo de dato de la lista.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="mandatory-input" class="control-label">Obligatoriedad</label>
+                    <div class="controls">
+                        <div class="input-prepend">
+                            <span class="add-on">
+                                <i class="icon-tag"></i>
+                            </span>
+                            <input type="text" class="input-xlarge" id="mandatory-input" value="<%= attributeType.mandatory %>"
+                                   data-provide="typeahead" data-items="5" autocomplete="off" 
+                                   data-source='["nodo", "relación", "ambos", "opcional"]' />
+                            <p class="help-block">Ingrese la obligatoriedad del atributo según la lista.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="validator-input" class="control-label">Función de validación</label>
+                    <div class="controls">
+                        <div class="input-prepend">
+                            <span class="add-on">
+                                <i class="icon-ok"></i>
+                            </span>
+                            <input type="text" class="input-xlarge" id="validator-input" value="<%= attributeType.validator %>" />
+                            <p class="help-block">Ingrese el nombre de la función de valdación del atributo</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a class="btn save-btn">Guardar</a>
+                    <a class="btn back-btn">Regresar</a>
+                </div>
+
+            </fieldset>
+        </form>
+
+    </div>
+</div>
