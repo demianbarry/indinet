@@ -37,7 +37,8 @@ requirejs.config({
     'HeaderView'       : 'views/header',
     'IndinetMenuView'       : 'views/indinetMenu',
     'IndinetView'      : 'views/indinet',
-    'AttributeTypeListView'   : 'views/attributeTypes/index',
+    'AttributeTypeListView'   : 'views/attributeTypes/list',
+    'AttributeTypeContainerView'   : 'views/attributeTypes/container',
     'AttributeTypeEditView'   : 'views/attributeTypes/edit',
     'AttributeTypeView'       : 'views/attributeTypes/show',
     'AccountListView'   : 'views/accounts/index',
@@ -45,7 +46,12 @@ requirejs.config({
     'AccountView'       : 'views/accounts/show',
     'AccountModel'      : 'models/account',
     'AccountCollection' : 'collections/accounts',
-
+    'NodeListView'   : 'views/nodes/list',
+    'NodeContainerView'   : 'views/nodes/container',
+    'NodeEditView'   : 'views/nodes/edit',
+    'NodeView'       : 'views/nodes/show',
+    'NodeModel'      : 'models/node',
+    'NodeCollection' : 'collections/nodes'
   }
 });
 

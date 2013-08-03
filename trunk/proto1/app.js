@@ -63,7 +63,7 @@ utils.loadConfig(__dirname + '/config', function(config) {
     require('./app/models/attributeType')(mongoose);
 
     // register controllers
-    ['accounts', 'attributeTypes', 'errors'].forEach(function(controller) {
+    ['accounts', 'attributeTypes', 'nodes', 'errors'].forEach(function(controller) {
         require('./app/controllers/' + controller + '_controller')(app, mongoose, config);
     });
 
