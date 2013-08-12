@@ -18,7 +18,7 @@ define('NodeView', [
         render: function() {
             var that = this, tmpl;
 
-            console.log(this.model.toJSON());
+            //console.log(this.model.toJSON());
             tmpl = that.template({node: this.model.toJSON()});
             $(that.el).html(tmpl);
 

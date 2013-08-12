@@ -310,7 +310,7 @@ define('RouterIndinet', [
         showNode: function(id) {
             var that = this, view;
 
-            console.log('js/ReuterIndinet.js showNode 1');
+            //console.log('js/ReuterIndinet.js showNode 1');
 
             // muestra/oculta componentes el menú de indinet
             $('.news-content').hide();
