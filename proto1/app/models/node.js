@@ -18,13 +18,13 @@ var Node = module.exports = function Node(_node) {
 };
 
 // public instance properties:
-/*
+
 Object.defineProperty(Node.prototype, 'id', {
     get: function() {
-        return this._node.id;
+        return this._id;
     }
 });
-*/
+
 
 Object.defineProperty(Node.prototype, 'exists', {
     get: function() {

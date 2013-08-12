@@ -1,14 +1,14 @@
-define('AttributeTypeEditView', [
+define('NodeEditView', [
     'jquery',
     'underscore',
     'backbone',
     'moment',
-    'text!templates/attributeTypes/edit.html',
-    'AttributeTypeModel'
-], function($, _, Backbone, moment, tpl, AttributeType) {
-    var AttributeTypeEditView;
+    'text!templates/nodes/edit.html',
+    'NodeModel'
+], function($, _, Backbone, moment, tpl, Node) {
+    var NodeEditView;
 
-    AttributeTypeEditView = Backbone.View.extend({
+    NodeEditView = Backbone.View.extend({
         initialize: function() {
             this.template = _.template(tpl);
 
@@ -19,61 +19,104 @@ define('AttributeTypeEditView', [
             this.errTmpl += '</div>';
             this.errTmpl += '</div>';
             this.errTmpl = _.template(this.errTmpl);
+
+            // Configura template para agregar un registro de atributo
+            this.next = 1;
+            this.attrTempl = '<div class="row show-grid" id="rowabcdefg">';
+            this.attrTempl += '<div class="span4">';
+            this.attrTempl += '<input type="text" class="input-xlarge" id="attribute-inputabcdefg" value="attrxyz" />';
+            this.attrTempl += '</div>';
+            this.attrTempl += '<div class="span4">';
+            this.attrTempl += '<input type="text" class="input-xlarge" id="value-inputabcdefg" value="valxyz" />';
+            this.attrTempl += '</div>'
+            this.attrTempl += '<div class="span1">';
+            this.attrTempl += '<button id="deleteButtonabcdefg" class="btn btn-danger del-btn" type="button" name="abcdefg">-</button>';
+            this.attrTempl += '</div>'
+            this.attrTempl += '</div>';
         },
         events: {
             "focus .input-prepend input": "removeErrMsg",
-            "click .save-btn": "saveAttributeType",
+            "click #addButton": "addAttributeRec",
+            "click .del-btn": "deleteAttributeRec",
+            "click .save-btn": "saveNode",
             "click .back-btn": "goBack"
         },
         render: function() {
             var tmpl;
-            //, formattedDate = ' ', bornAttr;
-
-            //bornAttr = this.model.get('born');
-            //formattedDate = moment(new Date(bornAttr)).format("MM/DD/YYYY");
-
-            //tmpl = this.template({ client: this.model.toJSON(), formattedDate: formattedDate });
-            tmpl = this.template({attributeType: this.model.toJSON()});
-
+            var that = this;
+            var node = this.model.toJSON();
+            tmpl = this.template({node: this.model.toJSON()});
             $(this.el).html(tmpl);
-
+            _.each(_.keys(node._node._data.data), function(attributeName) {
+                that.next = that.next + 1;
+                var attrTemp = that.attrTempl;
+                attrTemp = attrTemp.replace(/abcdefg/g, that.next.toString());
+                attrTemp = attrTemp.replace(/attrxyz/g, attributeName);
+                attrTemp = attrTemp.replace(/valxyz/g, node._node._data.data[attributeName]);
+                $(that.el).find("#afterRow").before(attrTemp);
+            });
             return this;
         },
         goBack: function(e) {
-            //console.log('/js/views/attributeTypes/edit.js goBack 2');
+            //console.log('/js/views/nodes/edit.js goBack 2');
             e.preventDefault();
             this.trigger('back');
         },
-        saveAttributeType: function(e) {
-            //console.log('/js/views/attributeTypes/edit.js saveAttributeType 1');
-            var name, dataType, mandatory, validator, that;
-
+        addAttributeRec: function(e) {
+            e.preventDefault();
+            this.next = this.next + 1;
+            var attrTemp = this.attrTempl.replace(/abcdefg/g, this.next.toString());
+            attrTemp = attrTemp.replace(/attrxyz/g, "");
+            attrTemp = attrTemp.replace(/valxyz/g, "");
+            //console.log('addAttributeRec --> %s',addto);
+            $(this.el).find("#afterRow").before(attrTemp);
+        },
+        deleteAttributeRec: function(e) {
+            e.preventDefault();
+            var recNumber = e.target.attributes['name'].nodeValue;
+            var removeFrom = "#row" + recNumber;
+            $(this.el).find(removeFrom).remove();
+        },
+        saveNode: function(e) {
+            //console.log('/js/views/nodes/edit.js saveNode 1');
             e.preventDefault();
 
-            that = this;
-            name = $.trim($('#name-input').val());
-            dataType = $.trim($('#dataType-input').val());
-            mandatory = $.trim($('#mandatory-input').val());
-            validator = $.trim($('#validator-input').val());
+            var that = this;
+            var node = this.model.toJSON();
+            var dataNode = "{";
+            //TODO hay que recorrer todos los elementos de la página e ir al ramdo JSON
+            $(this.el).find(".show-grid").each(function(index, element) {
+                var elementAttr = $($(element).children()[0]).children()[0];
+                var elementVal = $($(element).children()[1]).children()[0];
+                var attr = elementAttr.value;
+                var val = elementVal.value;
+                if (attr.length !== 0) {
+                    if (dataNode !== '{') {
+                        dataNode += ',';
+                    }
+                    dataNode += '"' + attr + '": ';
+                    dataNode += '"' + val + '"';
+                }
+            });
 
-            this.model.save({
-                name: name,
-                dataType: dataType,
-                mandatory: mandatory,
-                validator: validator
-            }, {
+            dataNode += '}';
+            console.log('dataNode --> %s', JSON.stringify(dataNode));
+            console.log('dataNode --> %s', JSON.stringify(dataNode.toJSON));
+            
+            this.model.save({data: dataNode},
+            {
                 silent: false,
                 sync: true,
                 success: function(model, res) {
                     if (res && _.keys(res.errors).length) {
-                        //console.log('/js/views/attributeTypes/edit.js saveAttributeType 4 %s', JSON.stringify(res));
+                        //console.log('/js/views/nodes/edit.js saveNode 4 %s', JSON.stringify(res));
                         that.renderErrMsg(res.errors);
                     } else {
                         model.trigger('save-success', model.get('_id'));
                     }
                 },
                 error: function(model, res) {
-                    //console.log('/js/views/attributeTypes/edit.js saveAttributeType 2 %s', JSON.stringify(res));
+                    //console.log('/js/views/nodes/edit.js saveNode 2 %s', JSON.stringify(res));
                     if (res && res.errors) {
                         that.renderErrMsg(res.errors);
                     } else if (res.status === 404) {
@@ -85,7 +128,7 @@ define('AttributeTypeEditView', [
             });
         },
         renderErrMsg: function(err) {
-            //console.log('/js/views/attributeTypes/edit.js saveAttributeType 3 %s', JSON.stringify(err));
+            //console.log('/js/views/nodes/edit.js saveNode 3 %s', JSON.stringify(err));
             var msgs = [];
 
             this.removeErrMsg();
@@ -112,5 +155,5 @@ define('AttributeTypeEditView', [
         }
     });
 
-    return AttributeTypeEditView;
+    return NodeEditView;
 });

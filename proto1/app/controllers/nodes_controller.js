@@ -10,7 +10,7 @@ var v1 = '/api/v1',
 NodesController = function(app, config) {
 
     app.get(v1 + '/nodes', function index(req, res, next) {
-        console.log('app.get V1/nodes 1');
+        //console.log('app.get V1/nodes 1');
         //node = new Node();
         Node.getAll(function(err, nodes) {
             checkErr(
@@ -26,7 +26,7 @@ NodesController = function(app, config) {
     });
 
     app.get(v1 + '/nodes/:id', function show(req, res, next) {
-        console.log('Entra en V1/nodes/:id');
+        //console.log('Entra en V1/nodes/:id');
         Node.get(req.params.id, function(err, node) {
             checkErr(
                     next,
@@ -34,7 +34,7 @@ NodesController = function(app, config) {
             function() {
                 // TODO: finish etag support here, check for If-None-Match
                 res.header('ETag', utils.etag(node));
-                console.log(JSON.stringify(node));
+                //console.log(JSON.stringify(node));
                 res.json(node);
             }
             );
@@ -75,26 +75,26 @@ NodesController = function(app, config) {
                     next,
                     [{cond: err}, {cond: !node, err: new NotFound('json')}],
             function() {
-                var newAttributes;
-
                 // modify resource with allowed attributes
-                newAttributes = _.pick(req.body, 'name', 'dataType', 'mandatory', 'validator');
-                node = _.extend(node, newAttributes);
+                console.log("\n data body --> %s", JSON.stringify(req.body.data));
+                console.log("\n parse data body --> %s", JSON.stringify(JSON.parse(req.body.data)));
+                console.log("\n data de nodo existente --> \n%s", JSON.stringify(node._node._data.data));
+                node._node._data.data = JSON.parse(req.body.data);
+                console.log("\n nuevo nodo --> %s\n", JSON.stringify(node));
 
-                node.save(function(err) {
+                node.save(function(err, nodeUpdated) {
                     var errors, code = 200;
 
                     if (!err) {
                         // send 204 No Content
+                        console.log('Nodo guardado exitosamente');
+                        console.log("\n nuevo nodo --> %s\n", JSON.stringify(nodeUpdated));
+
                         res.send();
                     } else {
-                        errors = utils.parseDbErrors(err, config.error_messages);
-                        if (errors.code) {
-                            code = errors.code;
-                            delete errors.code;
-                            log(err);
-                        }
-                        res.json(errors, code);
+                        console.log("Sale con error %s", err);
+                        log(err);
+                        res.json(err, code);
                     }
                 });
             }

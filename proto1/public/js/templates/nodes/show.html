@@ -2,7 +2,7 @@
     <div class="span6">
 
         <div class="page-header">
-            <h1>Nodo: <%= node._node._data.data['nombre'] %></h1>
+            <h3>Nodo: <%= node._node._data.data['nombre'] %></h3>
         </div>
 
         <div>
@@ -10,10 +10,9 @@
                 <tbody>
                     <% _.each(_.keys(node._node._data.data),function(attributeName) { %>
                     <tr>
-                        <td><h6><%= attributeName %>:</h6></td>
+                        <td><h5><%= attributeName %>:</h5></td>
                         <td>
-                            <i class="icon-tag"></i>
-                            <%= node._node._data.data[attributeName] %></a>
+                            <%= node._node._data.data[attributeName] %>
                         </td>
                     </tr>
                      <% }); %>
