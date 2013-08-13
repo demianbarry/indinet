@@ -1,4 +1,4 @@
-module.exports = function(mongoose) {
+çmodule.exports = function(mongoose) {
     var validator = require('../../lib/validator'),
             Schema = mongoose.Schema,
             AttributeType;
