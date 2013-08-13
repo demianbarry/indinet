@@ -21,7 +21,7 @@ define('NodeEditView', [
             this.errTmpl = _.template(this.errTmpl);
 
             // Configura template para agregar un registro de atributo
-            this.next = 1;
+            this.next = 0;
             this.attrTempl = '<div class="row show-grid" id="rowabcdefg">';
             this.attrTempl += '<div class="span4 input-append">';
             this.attrTempl += '<input type="text" class="span3 input-xlarge" id="attribute-inputabcdefg" value="attrxyz" />';
