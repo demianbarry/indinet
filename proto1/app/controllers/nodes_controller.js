@@ -42,30 +42,19 @@ NodesController = function(app, config) {
     });
 
     app.post(v1 + '/nodes', function create(req, res, next) {
-        var newNode;
 
-        //console.log('app/controllers/nodes_controller.js app.post(nodes 1');
-        // disallow other fields besides those listed below
-        newNode = new Node(_.pick(req.body, 'name', 'dataType', 'mandatory', 'validator'));
-        newNode.save(function(err) {
-            var errors, code = 200, loc;
-
-            //console.log('app/controllers/nodes_controller.js newNode.save 2 %s', err);
+        var newData = JSON.parse(req.body.data);
+        Node.create(newData, function(err, node) {
+            var code = 200;
 
             if (!err) {
-                loc = config.site_url + v1 + '/nodes/' + newNode._id;
-                res.setHeader('Location', loc);
-                res.json(newNode, 201);
+                res.send(node, 201);
             } else {
-                errors = utils.parseDbErrors(err, config.error_messages);
-                if (errors.code) {
-                    code = errors.code;
-                    delete errors.code;
-                    // TODO: better better logging system
-                    log(err);
-                }
-                res.json(errors, code);
+                console.log("Create node Sale con error %s", err);
+                log(err);
+                res.json(err, code);
             }
+
         });
     });
 
@@ -76,23 +65,18 @@ NodesController = function(app, config) {
                     [{cond: err}, {cond: !node, err: new NotFound('json')}],
             function() {
                 // modify resource with allowed attributes
-                console.log("\n data body --> %s", JSON.stringify(req.body.data));
-                console.log("\n parse data body --> %s", JSON.stringify(JSON.parse(req.body.data)));
-                console.log("\n data de nodo existente --> \n%s", JSON.stringify(node._node._data.data));
                 node._node._data.data = JSON.parse(req.body.data);
-                console.log("\n nuevo nodo --> %s\n", JSON.stringify(node));
 
-                node.save(function(err, nodeUpdated) {
-                    var errors, code = 200;
+                node.save(function(err) {
+                    var code = 200;
 
                     if (!err) {
                         // send 204 No Content
-                        console.log('Nodo guardado exitosamente');
-                        console.log("\n nuevo nodo --> %s\n", JSON.stringify(nodeUpdated));
-
+                        //console.log('Nodo guardado exitosamente');
+                        //console.log("\n nuevo nodo --> %s\n", JSON.stringify(nodeUpdated));
                         res.send();
                     } else {
-                        console.log("Sale con error %s", err);
+                        console.log("Save node Sale con error %s", err);
                         log(err);
                         res.json(err, code);
                     }
@@ -103,12 +87,25 @@ NodesController = function(app, config) {
     });
 
     app.del(v1 + '/nodes/:id', function destroy(req, res, next) {
-        Node.findById(req.params.id, function(err, node) {
+        Node.get(req.params.id, function(err, node) {
             checkErr(
                     next,
                     [{cond: err}, {cond: !node, err: new NotFound('json')}],
             function() {
-                node.remove();
+                node.del(function(err) {
+                    var code = 200;
+
+                    if (!err) {
+                        // send 204 No Content
+                        //console.log('Nodo eliminado exitosamente');
+                        //console.log("\n nuevo nodo --> %s\n", JSON.stringify(nodeUpdated));
+                        res.send();
+                    } else {
+                        console.log("Del node Sale con error %s", err);
+                        log(err);
+                        res.json(err, code);
+                    }
+                });
                 res.json({});
             }
             );
