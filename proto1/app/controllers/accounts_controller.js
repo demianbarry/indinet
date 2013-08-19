@@ -9,6 +9,7 @@ var v1 = '/api/v1',
 AccountsController = function(app, mongoose, config) {
     var Account = mongoose.model('Account');
 
+    // controlador de login de usuario
     app.post('/account/login', function login(req, res, next) {
 
         var username = req.param('username', null);
@@ -34,6 +35,7 @@ AccountsController = function(app, mongoose, config) {
         });
     });
 
+    // controlador de logout de usuario
     app.get('/account/logout', function logout(req, res, next) {
         //console.log('arranca logout');
         req.session.destroy();
@@ -43,6 +45,7 @@ AccountsController = function(app, mongoose, config) {
         return;
     });
 
+    // indicador de si existe login autenticado
     app.get('/account/authenticated', function isAuthenticated(req, res, next) {
         if (req.session && req.session.loggedIn) {
             //console.log('controllers/accounts_controller.js /account/authenticated usuario logeado: %s', req.session.accountSession.username);
@@ -53,6 +56,7 @@ AccountsController = function(app, mongoose, config) {
         }
     });
 
+    // controlador de registración de nuevo usuario
     app.post('/account/register', function login(req, res, next) {
 
         var username = req.param('username', null);
@@ -90,6 +94,7 @@ AccountsController = function(app, mongoose, config) {
         });
     });
 
+    // recupera colección de usuarios
     app.get(v1 + '/accounts', function index(req, res, next) {
         Account.search(req.query, function(err, account) {
             checkErr(
@@ -104,6 +109,7 @@ AccountsController = function(app, mongoose, config) {
         });
     });
 
+    // recupera un usuario
     app.get(v1 + '/accounts/:id', function show(req, res, next) {
         Account.findById(req.params.id, function(err, account) {
             checkErr(
@@ -118,6 +124,7 @@ AccountsController = function(app, mongoose, config) {
         });
     });
 
+    // guarda nuevo usuario
     app.post(v1 + '/accounts', function create(req, res, next) {
         var newAccount;
 
@@ -146,6 +153,7 @@ AccountsController = function(app, mongoose, config) {
         });
     });
 
+    // actualiza usuario existente
     app.put(v1 + '/accounts/:id', function update(req, res, next) {
         Account.findById(req.params.id, function(err, account) {
             checkErr(
@@ -179,6 +187,7 @@ AccountsController = function(app, mongoose, config) {
         });
     });
 
+    // elimina usuario
     app.del(v1 + '/accounts/:id', function destroy(req, res, next) {
         Account.findById(req.params.id, function(err, account) {
             checkErr(

@@ -4,6 +4,7 @@
 var neo4j = require('neo4j');
 var db = new neo4j.GraphDatabase(process.env.NEO4J_URL || 'http://localhost:7474');
 var validator = require('../../lib/validator');
+var _ = require('underscore');
 
 // constants:
 
@@ -121,4 +122,35 @@ Node.create = function create(data, callback) {
         });
     });
 };
+
+
+Node.getAttributesLikeNodeType = function getAttributeValues(nodeType, callback) {
+    var query = [
+        'START n=node(*)',
+        'WHERE n.tipo = {tipo}',
+        'RETURN n'
+    ].join('\n');
+
+    var params = {
+        tipo: nodeType
+    }
     
+    console.log('getAttributesLikeNodeType: params --> %s', JSON.stringify(params));
+
+    db.query(query, params, function(err, nodes) {
+        if (err)
+            return callback(err, []);
+        var attributeValues = nodes.map(function(node) {
+            //console.log('getAttributesLikeNodeType: node del map --> \n%s', JSON.stringify(node));
+            //console.log('getAttributesLikeNodeType: node.data del map --> \n%s', JSON.stringify(node.n.data));
+            return _.keys(node.n.data);
+        });
+        //console.log('lista de atributos recuperada para %s --> %s', nodeType.toString(), JSON.stringify(attributeValues));
+        // compacta la lista de atributos elimunando valores duplicados
+        //console.log('lista con flatten --> %s', JSON.stringify(_.flatten(attributeValues)));
+        var attrNoDup = _.union(_.flatten(attributeValues));
+        console.log('lista de atributos compactada para %s --> %s', nodeType.toString(), JSON.stringify(attrNoDup));
+
+        callback(null, attrNoDup);
+    });
+}
