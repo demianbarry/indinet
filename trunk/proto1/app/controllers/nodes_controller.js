@@ -9,6 +9,20 @@ var v1 = '/api/v1',
 
 NodesController = function(app, config) {
 
+    // recupera keys de attributos de un tipo de nodo en particular
+    app.post('/node/getAttributesLikeNodeType', function getAttrKeys(req, res, next) {
+        Node.getAttributesLikeNodeType(req.param('nodeType', null), function(err, keys) {
+            if (!err)
+                res.send(keys, 201);
+            else {
+                console.log("getAttributesLikeNodeType Sale con error %s", err);
+                log(err);
+                res.json(err,404);
+            }
+        });
+    });
+
+    // recupera colección de nodos
     app.get(v1 + '/nodes', function index(req, res, next) {
         //console.log('app.get V1/nodes 1');
         //node = new Node();
@@ -25,6 +39,7 @@ NodesController = function(app, config) {
         });
     });
 
+    // recupera un nodo en particular
     app.get(v1 + '/nodes/:id', function show(req, res, next) {
         //console.log('Entra en V1/nodes/:id');
         Node.get(req.params.id, function(err, node) {
@@ -41,6 +56,7 @@ NodesController = function(app, config) {
         });
     });
 
+    // crea un nuevo nodo en la base
     app.post(v1 + '/nodes', function create(req, res, next) {
 
         var newData = JSON.parse(req.body.data);
@@ -58,6 +74,7 @@ NodesController = function(app, config) {
         });
     });
 
+    // actualiza nodo existente
     app.put(v1 + '/nodes/:id', function update(req, res, next) {
         Node.get(req.params.id, function(err, node) {
             checkErr(
@@ -86,6 +103,7 @@ NodesController = function(app, config) {
         });
     });
 
+    // elimina nodo
     app.del(v1 + '/nodes/:id', function destroy(req, res, next) {
         Node.get(req.params.id, function(err, node) {
             checkErr(

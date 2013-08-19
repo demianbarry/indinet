@@ -24,9 +24,9 @@ define('NodeEditView', [
             this.next = 0;
             this.attrTempl = '<div class="row show-grid" id="rowabcdefg">';
             this.attrTempl += '<div class="span4 input-append">';
-            this.attrTempl += '<input type="text" class="span3 input-xlarge" id="attribute-inputabcdefg" value="attrxyz" />';
-            this.attrTempl += '<button class="btn" type="button">+A</button>';
-            this.attrTempl += '<button class="btn" type="button">B</button>';
+            this.attrTempl += '<input type="text" class="span3 input-xlarge" id="attribute-inputabcdefg" data-provide="typeahead" value="attrxyz" />';
+            this.attrTempl += '<button class="btn"><i class="icon-plus-sign"></i></button>';
+            this.attrTempl += '<button class="btn"><i class="icon-search"></i></button>';
             this.attrTempl += '</div>';
             this.attrTempl += '<div class="span4">';
             this.attrTempl += '<input type="text" class="input-xlarge" id="value-inputabcdefg" value="valxyz" />';
@@ -35,6 +35,10 @@ define('NodeEditView', [
             this.attrTempl += '<button id="deleteButtonabcdefg" class="btn btn-danger del-btn" type="button" name="abcdefg">-</button>';
             this.attrTempl += '</div>'
             this.attrTempl += '</div>';
+
+            // inicializa la lista de valores del typeahead de los atributos
+            this.attrList = ["val1", "val2", "val3"];
+            this.attrKeys = [];
         },
         events: {
             "focus .input-prepend input": "removeErrMsg",
@@ -56,6 +60,8 @@ define('NodeEditView', [
                 attrTemp = attrTemp.replace(/attrxyz/g, attributeName);
                 attrTemp = attrTemp.replace(/valxyz/g, node._node._data.data[attributeName]);
                 $(that.el).find("#afterRow").before(attrTemp);
+                var element = '#attribute-input' + that.next.toString();
+                $($(this.el).find(element)).typeahead({source: that.attrList});
             });
             return this;
         },
@@ -66,12 +72,20 @@ define('NodeEditView', [
         },
         addAttributeRec: function(e) {
             e.preventDefault();
-            this.next = this.next + 1;
-            var attrTemp = this.attrTempl.replace(/abcdefg/g, this.next.toString());
+            var that = this;
+
+            // recupera lista de keys de attributos de nodos similares
+            var nodeType = 'PERSONA';
+            getAttrKeys(nodeType, that.attrKeys);
+
+            that.next = that.next + 1;
+            var attrTemp = that.attrTempl.replace(/abcdefg/g, that.next.toString());
             attrTemp = attrTemp.replace(/attrxyz/g, "");
             attrTemp = attrTemp.replace(/valxyz/g, "");
             //console.log('addAttributeRec --> %s',addto);
             $(this.el).find("#afterRow").before(attrTemp);
+            var element = '#attribute-input' + that.next.toString();
+            $($(this.el).find(element)).typeahead({source: that.attrList});
         },
         deleteAttributeRec: function(e) {
             e.preventDefault();
@@ -104,7 +118,7 @@ define('NodeEditView', [
             dataNode += '}';
             console.log('dataNode --> %s', JSON.stringify(dataNode));
             console.log('dataNode --> %s', JSON.stringify(dataNode.toJSON));
-            
+
             this.model.save({data: dataNode},
             {
                 silent: false,
@@ -156,6 +170,17 @@ define('NodeEditView', [
             $(this.el).find('.alert-error').remove();
         }
     });
+
+    // recuepra vía ajax la lista de keys de nodos del mismo tipo
+    function getAttrKeys(nodeType, dataKeys) {
+        $.post('/node/getAttributesLikeNodeType', {nodeType: nodeType}, function(data) {
+            console.log('keys recuperadas para %s --> %s', nodeType, JSON.stringify(data));
+            dataKeys = data;
+        }).error(function() {
+            console.log('imposible recuperar keys: %s', 'TODO');
+        });
+    }
+    ;
 
     return NodeEditView;
 });
