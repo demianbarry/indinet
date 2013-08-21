@@ -37,12 +37,14 @@ define('NodeEditView', [
             // date
             this.attrTempl += '<input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-date" value="<%= value %>" style="display:none" />';
             // numberRange
-            this.attrTempl += '<input type="range" class="input-xlarge attribute-value" id="value-input<%= attr %>-numberRange" value="<%= value %>" style="display:none"/>';
+            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-rangeNumber.from" value="<%= value %>" style="display:none" placeholder="desde"/>';
+            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-rangeNumber.to" value="<%= value %>" style="display:none" placeholder="hasta"/>';
             // dateRange
-            this.attrTempl += '<input type="range" class="input-xlarge attribute-value" id="value-input<%= attr %>-dateRange" value="<%= value %>" style="display:none" />';
+            this.attrTempl += '<input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-rangeDate.from" value="<%= value %>" style="display:none" placeholder="desde"/>';
+            this.attrTempl += '<input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-rangeDate.to" value="<%= value %>" style="display:none" placeholder="hasta"/>';
             // geopoint
-            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-geopointlat" value="<%= value.lat %>" style="display:none" />';
-            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-geopoint.lon" value="<%= value.lon %>" style="display:none" />';
+            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-geopoint.lat" value="<%= value.lat ? value.lat : value %>" style="display:none" placeholder="latitud"/>';
+            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-geopoint.lon" value="<%= value.lon ? value.lon : value %>" style="display:none" placeholder="longitud" />';
             this.attrTempl += '</div>';
             this.attrTempl += '<div class="span1">';
             this.attrTempl += '<button id="deleteButton<%= attr %>" class="btn btn-danger del-btn" type="button" name="<%= attr %>">-</button>';
@@ -56,7 +58,7 @@ define('NodeEditView', [
             //this.attributes.string=_.template(this.attrTempl += '<input type="text" class="input-xlarge" id="value-input<%= attr %>" value="val<%= value %>" />');
 
             // inicializa la lista de valores del typeahead de los atributos
-            this.attrList = {'tipo': 'string'};
+            this.attrList = {tipo: 'geopoint', nace: 'date', fallece: 'date'};
             this.attrKeys = [];
         },
         events: {
@@ -198,7 +200,7 @@ define('NodeEditView', [
                 var type = this.attrList[$(ev.target).val()];
                 var attrId = $(ev.target).attr('id').match(/attribute-input(\d{1})/)[1];
                 $('#row' + attrId).find('input.attribute-value').hide();
-                $('#value-input' + attrId + '-'+type).show();                
+                $('[id^=value-input' + attrId + '-'+type+']').show();                
             }
         }
     });
