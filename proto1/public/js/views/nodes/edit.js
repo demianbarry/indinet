@@ -4,13 +4,28 @@ define('NodeEditView', [
     'backbone',
     'moment',
     'text!templates/nodes/edit.html',
-    'NodeModel'
-], function($, _, Backbone, moment, tpl, Node) {
+    'NodeModel',
+    'AttributeTypeCollection'
+], function($, _, Backbone, moment, tpl, Node, AttributeTypeCollection) {
     var NodeEditView;
 
     NodeEditView = Backbone.View.extend({
         initialize: function() {
             console.log('initialize');
+            this.attributeTypeCollection = new AttributeTypeCollection();
+            this.attributeTypeCollection.fetch({
+                success: function() {
+                    return true;
+                },
+                error: function(coll, res) {
+                    if (res.status === 404) {
+                        // TODO: handle 404 Not Found
+                    } else if (res.status === 500) {
+                        // TODO: handle 500 Internal Server Error
+                    }
+                }
+            });
+            
             this.template = _.template(tpl);
 
             this.errTmpl = '<div class="span4">';
@@ -78,11 +93,6 @@ define('NodeEditView', [
             $(this.el).html(tmpl);
             _.each(_.keys(node._node._data.data), function(attributeName) {
                 that.next = that.next + 1;
-                /*var attrTemp = that.attrTempl;
-                 attrTemp = attrTemp.replace(/abcdefg/g, that.next.toString());
-                 attrTemp = attrTemp.replace(/attr<%= value %>/g, attributeName);
-                 attrTemp = attrTemp.replace(/val<%= value %>/g, node._node._data.data[attributeName]);
-                 $(that.el).find("#afterRow").before(attrTemp);*/
                 $(that.el).find("#afterRow").before(that.attrTempl({attr: that.next.toString(), attrValue: attributeName, value: node._node._data.data[attributeName]}));
                 var element = '#attribute-input' + that.next.toString();
                 $($(this.el).find(element)).typeahead({source: that.attrList});
@@ -110,28 +120,12 @@ define('NodeEditView', [
                 }
                 
                 that.next = that.next + 1;
-                var attrTemp = that.attrTempl.replace(/abcdefg/g, that.next.toString());
-                attrTemp = attrTemp.replace(/attrxyz/g, "");
-                attrTemp = attrTemp.replace(/valxyz/g, "");
-                //console.log('addAttributeRec --> %s',addto);
-                $(that.el).find("#afterRow").before(attrTemp);
+                $(that.el).find("#afterRow").before(that.attrTempl({attr: that.next.toString(), attrValue: '', value: ''}));
                 var element = '#attribute-input' + that.next.toString();
                 $($(that.el).find(element)).typeahead({source: that.attrKeys, minLength: 0, });
-                
-                $($(that.el).find(element)).click(function() {
-                    $(this).typeahead().process(that.attrKeys);
-                });
+              
             });
 
-            that.next = that.next + 1;
-            /*var attrTemp = that.attrTempl.replace(/abcdefg/g, that.next.toString());
-             attrTemp = attrTemp.replace(/attr<%= value %>/g, "");
-             attrTemp = attrTemp.replace(/val<%= value %>/g, "");
-             //console.log('addAttributeRec --> %s',addto);
-             $(this.el).find("#afterRow").before(attrTemp);*/
-            $(that.el).find("#afterRow").before(that.attrTempl({attr: that.next.toString(), attrValue: '', value: ''}));
-            var element = '#attribute-input' + that.next.toString();
-            $($(this.el).find(element)).typeahead({source: that.attrList});
         },
         deleteAttributeRec: function(e) {
             e.preventDefault();
@@ -217,8 +211,9 @@ define('NodeEditView', [
         },
         showInputs: function(ev) {
             //console.log($('#row' + $(ev.target).attr('id').match(/attribute-input(\d{1})/)[1]));
-            if (this.attrList[$(ev.target).val()]) {
-                var type = this.attrList[$(ev.target).val()];
+            var attributeType = this.attributeTypeCollection.where({name:$(ev.target).val()})[0];
+            if (attributeType) {                
+                var type = attributeType.get("dataType");
                 var attrId = $(ev.target).attr('id').match(/attribute-input(\d{1})/)[1];
                 $('#row' + attrId).find('input.attribute-value').hide();
                 $('[id^=value-input' + attrId + '-'+type+']').show();                
