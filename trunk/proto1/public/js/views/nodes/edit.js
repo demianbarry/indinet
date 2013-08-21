@@ -100,7 +100,28 @@ define('NodeEditView', [
 
             // recupera lista de keys de attributos de nodos similares
             var nodeType = 'PERSONA';
-            getAttrKeys(nodeType, that.attrKeys);
+            getAttrKeys(nodeType, function(err, attrKeys) {
+                if (err) {
+                    console.log('imposible recuperar keys: %s', err);
+                    that.attrKeys = [];
+                }
+                else {
+                    that.attrKeys = attrKeys;
+                }
+                
+                that.next = that.next + 1;
+                var attrTemp = that.attrTempl.replace(/abcdefg/g, that.next.toString());
+                attrTemp = attrTemp.replace(/attrxyz/g, "");
+                attrTemp = attrTemp.replace(/valxyz/g, "");
+                //console.log('addAttributeRec --> %s',addto);
+                $(that.el).find("#afterRow").before(attrTemp);
+                var element = '#attribute-input' + that.next.toString();
+                $($(that.el).find(element)).typeahead({source: that.attrKeys, minLength: 0, });
+                
+                $($(that.el).find(element)).click(function() {
+                    $(this).typeahead().process(that.attrKeys);
+                });
+            });
 
             that.next = that.next + 1;
             /*var attrTemp = that.attrTempl.replace(/abcdefg/g, that.next.toString());
@@ -206,12 +227,12 @@ define('NodeEditView', [
     });
 
     // recuepra vía ajax la lista de keys de nodos del mismo tipo
-    function getAttrKeys(nodeType, dataKeys) {
+    function getAttrKeys(nodeType, callback) {
         $.post('/node/getAttributesLikeNodeType', {nodeType: nodeType}, function(data) {
             console.log('keys recuperadas para %s --> %s', nodeType, JSON.stringify(data));
-            dataKeys = data;
+            callback(null, data);
         }).error(function() {
-            console.log('imposible recuperar keys: %s', 'TODO');
+            callback('TODO');
         });
     }
     ;

@@ -10,7 +10,7 @@ var v1 = '/api/v1',
 NodesController = function(app, config) {
 
     // recupera keys de attributos de un tipo de nodo en particular
-    app.post('/node/getAttributesLikeNodeType', function getAttrKeys(req, res, next) {
+    app.post('/node/getAttributesLikeNodeType', function getAttributesLikeNodeType(req, res, next) {
         Node.getAttributesLikeNodeType(req.param('nodeType', null), function(err, keys) {
             if (!err)
                 res.send(keys, 201);
