@@ -23,7 +23,7 @@ define('AttributeTypeEditView', [
         events: {
             "focus .input-prepend input": "removeErrMsg",
             "click .save-btn": "saveAttributeType",
-            "click .back-btn": "goBack"
+            "click .back-btn": "goBack"            
         },
         render: function() {
             var tmpl;
@@ -65,7 +65,7 @@ define('AttributeTypeEditView', [
                 silent: false,
                 sync: true,
                 success: function(model, res) {
-                    if (res && _.keys(res.errors).length) {
+                    if (res && res.errors && _.keys(res.errors).length) {
                         //console.log('/js/views/attributeTypes/edit.js saveAttributeType 4 %s', JSON.stringify(res));
                         that.renderErrMsg(res.errors);
                     } else {
