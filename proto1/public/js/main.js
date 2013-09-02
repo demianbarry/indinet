@@ -51,7 +51,13 @@ requirejs.config({
     'NodeEditView'   : 'views/nodes/edit',
     'NodeView'       : 'views/nodes/show',
     'NodeModel'      : 'models/node',
-    'NodeCollection' : 'collections/nodes'
+    'NodeCollection' : 'collections/nodes',
+    'RelationshipListView'   : 'views/relationships/list',
+    'RelationshipContainerView'   : 'views/relationships/container',
+    'RelationshipEditView'   : 'views/relationships/edit',
+    'RelationshipView'       : 'views/relationships/show',
+    'RelationshipModel'      : 'models/relationship',
+    'RelationshipCollection' : 'collections/relationships'
   }
 });
 

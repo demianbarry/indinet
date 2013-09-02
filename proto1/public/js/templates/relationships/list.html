@@ -1,0 +1,34 @@
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th><i class="icon-tag"></i>Tipo Origen</th>
+                <th><i class="icon-user"></i>Nombre Origen</th>
+                <th><i class="icon-asterisk"></i>Relación</th>
+                <th><i class="icon-tag"></i>Tipo Destino</th>
+                <th><i class="icon-user"></i>Nombre Destino</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% _.each(relationships, function(relationship) { %>
+            <tr>
+                <td>
+                    <%= relationship['fromNodeType'] %>
+                </td>
+                <td>
+                    <a href="#/indinet/nodes/<%- relationship.fromNodeId %>"><%= relationship['fromNodeName'] %></a>
+                </td>
+                <td>
+                    <a href="#/indinet/relationships/<%- relationship._id %>"><%= relationship['_type'] %></a>
+                </td>
+                <td>
+                    <%= relationship['toNodeType'] %>
+                </td>
+                <td>
+                    <a href="#/indinet/nodes/<%- relationship.toNodeId %>"><%= relationship['toNodeName'] %></a>
+                </td>
+            </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</div>

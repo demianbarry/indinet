@@ -1,26 +1,26 @@
-define('AttributeTypeContainerView', [
+define('RelationshipContainerView', [
     'jquery',
     'underscore',
     'backbone',
     'moment',
-    'text!templates/attributeTypes/container.html',
-    'AttributeTypeCollection',
-    'AttributeTypeListView'
-], function($, _, Backbone, moment, tpl, AttributeTypeCollection, AttributeTypeListView) {
-    var AttributeTypeContainerView;
+    'text!templates/relationships/container.html',
+    'RelationshipCollection',
+    'RelationshipListView'
+], function($, _, Backbone, moment, tpl, RelationshipCollection, RelationshipListView) {
+    var RelationshipContainerView;
 
-    AttributeTypeContainerView = Backbone.View.extend({
+    RelationshipContainerView = Backbone.View.extend({
         initialize: function() {
-            //var attributeTypeList
+            //var relationshipList
 
             this.template = _.template(tpl);
-            this.collection = new AttributeTypeCollection();
+            this.collection = new RelationshipCollection();
             this.getData();
             this.collection.bind("reset", this.render, this);
 
         },
         events: {
-            "keyup #searchAttributeType": "search"
+            "keyup #searchRelationship": "search"
         },
         getData: function() {
 
@@ -46,28 +46,28 @@ define('AttributeTypeContainerView', [
              var collectionRender = this.collection.search(letters);
              var tmpl = this.template();
              $(this.el).html(tmpl);
-             $('#searchAttributeType').val(letters);
-             $('#searchAttributeType').focus();
-             //console.log($('#searchAttributeType'));
+             $('#searchRelationship').val(letters);
+             $('#searchRelationship').focus();
+             //console.log($('#searchRelationship'));
              return this;
              */
         },
         renderList: function(letters) {
-            $("#attributeList").html("");
+            $("#relationshipList").html("");
 
-            var view = new AttributeTypeListView();
+            var view = new RelationshipListView();
             var collectionRender = this.collection.search(letters);
-            $("#attributeList").append(view.render(collectionRender).el);
-            $('#searchAttributeType').val(letters);
-            $('#searchAttributeType').focus();
+            $("#relationshipList").append(view.render(collectionRender).el);
+            $('#searchRelationship').val(letters);
+            $('#searchRelationship').focus();
 
         },
         search: function(e) {
             e.preventDefault();
-            var letters = $("#searchAttributeType").val();
+            var letters = $("#searchRelationship").val();
             this.renderList(letters);
         }
     });
 
-    return AttributeTypeContainerView;
+    return RelationshipContainerView;
 });

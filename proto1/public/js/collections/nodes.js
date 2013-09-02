@@ -15,7 +15,10 @@ define('NodeCollection', [
 
             var pattern = new RegExp(letters, "gi");
             var filteredCollection = this.filter(function(data) {
-                var retVal = data.get("nombre").match(pattern);
+                var node = data.toJSON();
+                console.log(node._node._data.data['tipo']);
+                console.log(node._node._data.data['nombre']);
+                var retVal = node._node._data.data['nombre'].match(pattern) || node._node._data.data['tipo'].match(pattern);
                 //console.log('data:' + data.get("name") + ' retval: ' + retVal + ' letters: ' + letters);
                 return retVal;
             });

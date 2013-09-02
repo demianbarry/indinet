@@ -1,0 +1,30 @@
+<div class="row">
+    <div class="span6">
+
+        <div class="page-header">
+            <h3>Relación: <%= relationship.fromNodeName %> <%= relationship._type %> <%= relationship.toNodeName %></h3>
+        </div>
+
+        <div>
+            <table class="table table-striped">
+                <tbody>
+                    <% _.each(_.keys(relationship._relationship._data.data),function(attributeName) { %>
+                    <tr>
+                        <td><h5><%= attributeName %>:</h5></td>
+                        <td>
+                            <%= relationship._relationship._data.data[attributeName] %>
+                        </td>
+                    </tr>
+                     <% }); %>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="form-actions">
+            <a href="#/indinet/relationships/<%= relationship._id %>/edit" class="btn edit-btn">Editar</a>
+            <button class="btn delete-btn">Eliminar</button>
+            <a href="#/indinet/relationships" class="btn back-btn">Regresar</a>
+        </div>
+
+    </div>
+</div>

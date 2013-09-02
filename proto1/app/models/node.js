@@ -15,6 +15,7 @@ var Node = module.exports = function Node(_node) {
     // all we'll really store is the node; the rest of our properties will be
     // derivable or just pass-through properties (see below).
     this._node = _node;
+    this._data = _node.data;
     this._id = _node.id;
 };
 
@@ -62,6 +63,7 @@ Node.prototype.del = function del(callback) {
 // static methods:
 
 Node.get = function get(id, callback) {
+    console.log(typeof id);
     db.getNodeById(id, function(err, node) {
         if (err)
             return callback(err);
@@ -79,11 +81,10 @@ Node.getAll = function getAll(callback) {
         if (err)
             return callback(err, []);
         var nodes = nodes.map(function(node) {
-            //var nodo = new Node(node['n']);
+            //var nodo = new Node(node);
             //console.log('\n\n***************Nodo completo:\n%s', JSON.stringify(nodo) );
-            //console.log('\n--------------- Sólo parte data:\n%s',JSON.stringify(nodo._node.data));
+            //console.log('\n--------------- Sólo parte data:\n%s',JSON.stringify(nodo.data));
             //console.log('\n--------------- Sólo parte id:\n%s',JSON.stringify(nodo._id));
-            //console.log('\n--------------- atrubuto nombre\n%s',JSON.stringify(nodo.attribute.get('nombre')));
             return new Node(node['n']);
         });
         //console.log('\n\n***************TODOS los nodos:\n%s', JSON.stringify(nodes));
@@ -115,16 +116,19 @@ Node.create = function create(data, callback) {
     node.save(function(err) {
         if (err)
             return callback(err);
+        /*
+         * TODO: Falta implementar índice en nodos
         node.index(INDEX_NAME, INDEX_KEY, INDEX_VAL, function(err) {
             if (err)
                 return callback(err);
             callback(null, node);
         });
+        */
     });
 };
 
 
-Node.getAttributesLikeNodeType = function getAttributeValues(nodeType, callback) {
+Node.getAttributesLikeNodeType = function getAttributesLikeNodeType(nodeType, callback) {
     var query = [
         'START n=node(*)',
         'WHERE n.tipo = {tipo}',
@@ -133,7 +137,7 @@ Node.getAttributesLikeNodeType = function getAttributeValues(nodeType, callback)
 
     var params = {
         tipo: nodeType
-    }
+    };
     
     console.log('getAttributesLikeNodeType: params --> %s', JSON.stringify(params));
 
@@ -149,8 +153,24 @@ Node.getAttributesLikeNodeType = function getAttributeValues(nodeType, callback)
         // compacta la lista de atributos elimunando valores duplicados
         //console.log('lista con flatten --> %s', JSON.stringify(_.flatten(attributeValues)));
         var attrNoDup = _.union(_.flatten(attributeValues));
-        console.log('lista de atributos compactada para %s --> %s', nodeType.toString(), JSON.stringify(attrNoDup));
 
         callback(null, attrNoDup);
     });
-}
+};
+
+Node.getNodeTypes = function getNodeTypes(callback) {
+    var query = [
+        'START n=node(*)',
+        'RETURN collect(distinct n.tipo) AS res'
+    ].join('\n');
+
+    db.query(query, function(err, types) {
+        if (err)
+            return callback(err, []);
+
+        var values = _.first(_.values(_.first(types)));
+        //console.log("Resultado consulta de tipos de nodos --> %s",JSON.stringify(types));
+        //console.log("tipos de nodos --> %s",JSON.stringify(values));
+        callback(null, values);
+    });
+};

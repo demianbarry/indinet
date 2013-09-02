@@ -1,0 +1,30 @@
+<div class="row">
+    <div class="span9">
+
+        <div class="page-header">        
+            <h3><% if(relationship._id){ %>Editar relación:<%= relationship.fromNodeName %> <%= relationship._type %> <%= relationship.toNodeName %><% } else {%>Nueva relación <% } %></h3>
+        </div>
+
+        <div class="row">
+            <div class="span4">Atributo</div>
+            <div class="span4">Valor</div>
+        </div>
+
+        <form class="form-horizontal">
+            <fieldset>
+                <div class="control-group" id="recordGroup">
+                    <div class="btn-group span2" id="afterRow">
+                        <button id="addButton" class="btn" type="button"><i class="icon-plus"></i>Agregar</button>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a class="btn save-btn">Guardar</a>
+                    <a class="btn back-btn">Regresar</a>
+                </div>
+
+            </fieldset>
+        </form>
+
+    </div>
+</div>

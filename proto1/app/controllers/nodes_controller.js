@@ -22,6 +22,19 @@ NodesController = function(app, config) {
         });
     });
 
+    // recupera todos los tipos de nodos
+    app.post('/node/getNodeTypes', function getNodeTypes(req, res, next) {
+        Node.getNodeTypes(function(err, types) {
+            if (!err)
+                res.send(types, 201);
+            else {
+                console.log("getNodeTypes Sale con error %s", err);
+                log(err);
+                res.json(err,404);
+            }
+        });
+    });
+
     // recupera colección de nodos
     app.get(v1 + '/nodes', function index(req, res, next) {
         //console.log('app.get V1/nodes 1');
@@ -68,7 +81,7 @@ NodesController = function(app, config) {
             } else {
                 console.log("Create node Sale con error %s", err);
                 log(err);
-                res.json(err, code);
+                res.json(err, 500);
             }
 
         });

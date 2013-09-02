@@ -1,15 +1,15 @@
-define('NodeEditView', [
+define('RelationshipEditView', [
     'jquery',
     'underscore',
     'backbone',
     'moment',
-    'text!templates/nodes/edit.html',
-    'NodeModel',
+    'text!templates/relationships/edit.html',
+    'RelationshipModel',
     'AttributeTypeCollection'
-], function($, _, Backbone, moment, tpl, Node, AttributeTypeCollection) {
-    var NodeEditView;
+], function($, _, Backbone, moment, tpl, Relationship, AttributeTypeCollection) {
+    var RelationshipEditView;
 
-    NodeEditView = Backbone.View.extend({
+    RelationshipEditView = Backbone.View.extend({
         initialize: function() {
             console.log('initialize');
             this.attributeTypeCollection = new AttributeTypeCollection();
@@ -25,7 +25,7 @@ define('NodeEditView', [
                     }
                 }
             });
-
+            
             this.template = _.template(tpl);
 
             this.errTmpl = '<div class="span4">';
@@ -46,7 +46,7 @@ define('NodeEditView', [
             this.attrTempl += '</div>';
             this.attrTempl += '<div class="span4">';
             // string
-            this.attrTempl += '<input type="text" class="input-xlarge attribute-value" id="value-input<%= attr %>-string" data-provide="typeahead" value="<%= value %>"/>';
+            this.attrTempl += '<input type="text" class="input-xlarge attribute-value" id="value-input<%= attr %>-string" value="<%= value %>"/>';
             // number            
             this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-number" value="<%= value %>" style="display:none" />';
             // date
@@ -66,7 +66,7 @@ define('NodeEditView', [
             this.attrTempl += '</div>';
             this.attrTempl += '</div>';
             this.attrTempl = _.template(this.attrTempl);
-            console.log(this.attrTempl);
+            //console.log(this.attrTempl);
 
             //this.attributes = {};
             // string number date geopoint numberRange dateRange stringList numberList poligon
@@ -74,13 +74,12 @@ define('NodeEditView', [
 
             // inicializa la lista de valores del typeahead de los atributos
             this.attrKeys = [];
-            this.nodeTypes = [];
         },
         events: {
             "focus .input-prepend input": "removeErrMsg",
             "click #addButton": "addAttributeRec",
             "click .del-btn": "deleteAttributeRec",
-            "click .save-btn": "saveNode",
+            "click .save-btn": "saveRelationship",
             "click .back-btn": "goBack",
             "change input.attribute-name": "showInputs"
         },
@@ -88,55 +87,35 @@ define('NodeEditView', [
             console.log('render');
             var tmpl;
             var that = this;
-            var node = this.model.toJSON();
-
-            // verifica se es new o edit... sino le crea los attr obligatorios
-            if (!node._node) {
-                node._node = {_data: {data: {tipo: "", nombre: ""}}};
-            }
-
-            tmpl = that.template({node: node});
-            $(that.el).html(tmpl);
-
-            // recupera los tipos de nodo y setea al typeahead
-            getNodeTypes(function(err, nodeTypes) {
-                if (err) {
-                    console.log('imposible recuperar tipos de nodo: %s', err);
-                    that.nodeTypes = [];
-                }
-                else {
-                    that.nodeTypes = nodeTypes;
-                }
-
-                _.each(_.keys(node._node._data.data), function(attributeName) {
-                    that.next = that.next + 1;
-                    $(that.el).find("#afterRow").before(that.attrTempl({attr: that.next.toString(), attrValue: attributeName, value: node._node._data.data[attributeName]}));
-                    var element = '#attribute-input' + that.next.toString();
-                    $($(that.el).find(element)).typeahead({source: that.attrList});
-                    var valTipo = '#value-input' + that.next.toString() + "-string";
-                    $($(that.el).find(valTipo)).typeahead({source: that.nodeTypes});
-                });
+            var relationship = this.model.toJSON();
+            tmpl = this.template({relationship: relationship});
+            $(this.el).html(tmpl);
+            _.each(_.keys(relationship._relationship._data.data), function(attributeName) {
+                that.next = that.next + 1;
+                $(that.el).find("#afterRow").before(that.attrTempl({attr: that.next.toString(), attrValue: attributeName, value: relationship._relationship._data.data[attributeName]}));
+                var element = '#attribute-input' + that.next.toString();
+                $($(this.el).find(element)).typeahead({source: that.attrList});
             });
-
             return this;
         },
         goBack: function(e) {
-            //console.log('/js/views/nodes/edit.js goBack 2');
+            //console.log('/js/views/relationships/edit.js goBack 2');
             e.preventDefault();
             this.trigger('back');
         },
         addAttributeRec: function(e) {
             e.preventDefault();
             var that = this;
-            var nodeType = 'NO ENCUENTRA EL TIPO @@##@#';
-
+            var relationshipType = 'NO ENCUENTRA EL TIPO @@##@#';
+            
             // recupera el tipo de nodo si existe
-            var node = this.model.toJSON();
-            var type = _.values(_.pick(node._node._data.data, 'tipo'))[0];
+            var relationship = this.model.toJSON();
+            var type = relationship._type;
             if (type)
-                nodeType = type;
+                relationshipType = type;
 
-            getAttrKeys(nodeType, function(err, attrKeys) {
+            // recupera lista de keys de attributos de nodos similares
+            getAttrKeys(relationshipType, function(err, attrKeys) {
                 if (err) {
                     console.log('imposible recuperar keys: %s', err);
                     that.attrKeys = [];
@@ -144,28 +123,28 @@ define('NodeEditView', [
                 else {
                     that.attrKeys = attrKeys;
                 }
-
+                
                 that.next = that.next + 1;
                 $(that.el).find("#afterRow").before(that.attrTempl({attr: that.next.toString(), attrValue: '', value: ''}));
                 var element = '#attribute-input' + that.next.toString();
                 $($(that.el).find(element)).typeahead({source: that.attrKeys, minLength: 0, });
-
+              
             });
 
         },
         deleteAttributeRec: function(e) {
             e.preventDefault();
-            var recNumber = e.target.attributes['name'].nodeValue;
+            var recNumber = e.target.attributes['name'].relationshipValue;
             var removeFrom = "#row" + recNumber;
             $(this.el).find(removeFrom).remove();
         },
-        saveNode: function(e) {
-            //console.log('/js/views/nodes/edit.js saveNode 1');
+        saveRelationship: function(e) {
+            //console.log('/js/views/relationships/edit.js saveRelationship 1');
             e.preventDefault();
 
             var that = this;
-            var node = this.model.toJSON();
-            var dataNode = "{";
+            var relationship = this.model.toJSON();
+            var dataRelationship = "{";
             //TODO hay que recorrer todos los elementos de la página e ir al ramdo JSON
             $(this.el).find(".show-grid").each(function(index, element) {
                 var elementAttr = $($(element).children()[0]).children()[0];
@@ -173,32 +152,32 @@ define('NodeEditView', [
                 var attr = elementAttr.value;
                 var val = elementVal.value;
                 if (attr.length !== 0) {
-                    if (dataNode !== '{') {
-                        dataNode += ',';
+                    if (dataRelationship !== '{') {
+                        dataRelationship += ',';
                     }
-                    dataNode += '"' + attr + '": ';
-                    dataNode += '"' + val + '"';
+                    dataRelationship += '"' + attr + '": ';
+                    dataRelationship += '"' + val + '"';
                 }
             });
 
-            dataNode += '}';
-            console.log('dataNode --> %s', JSON.stringify(dataNode));
-            console.log('dataNode --> %s', JSON.stringify(dataNode.toJSON));
+            dataRelationship += '}';
+            console.log('dataRelationship --> %s', JSON.stringify(dataRelationship));
+            console.log('dataRelationship --> %s', JSON.stringify(dataRelationship.toJSON));
 
-            this.model.save({data: dataNode},
+            this.model.save({data: dataRelationship},
             {
                 silent: false,
                 sync: true,
                 success: function(model, res) {
                     if (res && _.keys(res.errors).length) {
-                        //console.log('/js/views/nodes/edit.js saveNode 4 %s', JSON.stringify(res));
+                        //console.log('/js/views/relationships/edit.js saveRelationship 4 %s', JSON.stringify(res));
                         that.renderErrMsg(res.errors);
                     } else {
                         model.trigger('save-success', model.get('_id'));
                     }
                 },
                 error: function(model, res) {
-                    //console.log('/js/views/nodes/edit.js saveNode 2 %s', JSON.stringify(res));
+                    //console.log('/js/views/relationships/edit.js saveRelationship 2 %s', JSON.stringify(res));
                     if (res && res.errors) {
                         that.renderErrMsg(res.errors);
                     } else if (res.status === 404) {
@@ -210,7 +189,7 @@ define('NodeEditView', [
             });
         },
         renderErrMsg: function(err) {
-            //console.log('/js/views/nodes/edit.js saveNode 3 %s', JSON.stringify(err));
+            //console.log('/js/views/relationships/edit.js saveRelationship 3 %s', JSON.stringify(err));
             var msgs = [];
 
             this.removeErrMsg();
@@ -237,37 +216,35 @@ define('NodeEditView', [
         },
         showInputs: function(ev) {
             //console.log($('#row' + $(ev.target).attr('id').match(/attribute-input(\d{1})/)[1]));
-            var attributeType = this.attributeTypeCollection.where({name: $(ev.target).val()})[0];
-            if (attributeType) {
+            var attributeType = this.attributeTypeCollection.where({name:$(ev.target).val()})[0];
+            if (attributeType) {                
                 var type = attributeType.get("dataType");
                 var attrId = $(ev.target).attr('id').match(/attribute-input(\d{1})/)[1];
                 $('#row' + attrId).find('input.attribute-value').hide();
-                $('[id^=value-input' + attrId + '-' + type + ']').show();
+                $('[id^=value-input' + attrId + '-'+type+']').show();                
             }
         }
     });
 
-    // recuepra vía ajax la lista de keys de nodos del mismo tipo
-    function getAttrKeys(nodeType, callback) {
-        $.post('/node/getAttributesLikeNodeType', {nodeType: nodeType}, function(data) {
-            //console.log('keys recuperadas para %s --> %s', nodeType, JSON.stringify(data));
+    // recuepra vía ajax la lista de keys de las relaciones del mismo tipo
+    function getAttrKeys(relationshipType, callback) {
+        $.post('/relationship/getAttributesLikeRelationshipType', {relationshipType: relationshipType}, function(data) {
+            //console.log('keys recuperadas para %s --> %s', relationshipType, JSON.stringify(data));
             callback(null, data);
         }).error(function() {
             callback('TODO');
         });
-    }
-    ;
+    };
 
-    // recuepra vía ajax la lista de tipos de nodos
-    function getNodeTypes(callback) {
-        $.post('/node/getNodeTypes', function(data) {
-            //console.log('keys recuperadas para %s --> %s', nodeType, JSON.stringify(data));
+    // recuepra vía ajax la lista de todos los tipos de nodos
+    function getTypes(callback) {
+        $.post('/relationship/getRelationshipTypes', function(data) {
+            //console.log('keys recuperadas para %s --> %s', relationshipType, JSON.stringify(data));
             callback(null, data);
         }).error(function() {
             callback('TODO');
         });
-    }
-    ;
+    };
 
-    return NodeEditView;
+    return RelationshipEditView;
 });
