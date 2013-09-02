@@ -17,11 +17,17 @@ define('RouterIndinet', [
     'NodeContainerView',
     'NodeView',
     'NodeEditView',
-    'NodeModel'
+    'NodeModel',
+    'RelationshipListView',
+    'RelationshipContainerView',
+    'RelationshipView',
+    'RelationshipEditView',
+    'RelationshipModel'  
 ], function($, _, Backbone, IndinetView, IndinetMenuView, 
         AttributeTypeListView, AttributeTypeContainerView, AttributeTypeView, AttributeTypeEditView, AttributeType,
         AccountListView, AccountView, AccountEditView, Account,
-        NodeListView, NodeContainerView, NodeView, NodeEditView, Node) {
+        NodeListView, NodeContainerView, NodeView, NodeEditView, Node,
+        RelationshipListView, RelationshipContainerView, RelationshipView, RelationshipEditView, Relationship) {
     var IndinetRouter;
 
     IndinetRouter = Backbone.Router.extend({
@@ -38,7 +44,11 @@ define('RouterIndinet', [
             'indinet/nodes': 'showNodes',
             'indinet/nodes/new': 'addNode',
             'indinet/nodes/:id': 'showNode',
-            'indinet/nodes/:id/edit': 'editNode'
+            'indinet/nodes/:id/edit': 'editNode',
+            'indinet/relationships': 'showRelationships',
+            'indinet/relationships/new': 'addRelationship',
+            'indinet/relationships/:id': 'showRelationship',
+            'indinet/relationships/:id/edit': 'editRelationship'
         },
         initialize: function() {
             this.accountSession = {};
@@ -387,6 +397,116 @@ define('RouterIndinet', [
                     view.model.on('save-success', function() {
                         delete view;
                         that.navigate('#/indinet/nodes/' + id, {trigger: true});
+                    });
+                },
+                error: function(model, res) {
+                    if (res.status === 404) {
+                        // TODO: handle 404 Not Found
+                    } else if (res.status === 500) {
+                        // TODO: handle 500 Internal Server Error
+                    }
+                }
+            });
+
+        },
+        showRelationships: function() {
+
+            // muestra/oculta componentes el menú de indinet
+            $('.news-content').hide();
+            $('.tab-content').show();
+            this.indinetMenuView.$el.show();
+            this.indinetMenuView.select('relationships-menu');
+
+            if (!this.relationshipContainerView) {
+                this.relationshipContainerView = new RelationshipContainerView();
+            }
+            this.elms['page-content'].html(this.relationshipContainerView.render("").el);
+            /*
+            this.attributeTypeListView.render(function() {
+                that.elms['page-content'].html(that.attributeTypeListView.el);
+            });
+            */
+        },
+        showRelationship: function(id) {
+            var that = this, view;
+
+            //console.log('js/ReuterIndinet.js showNode 1');
+
+            // muestra/oculta componentes el menú de indinet
+            $('.news-content').hide();
+            $('.tab-content').show();
+            this.indinetMenuView.$el.show();
+            this.indinetMenuView.select('relationships-menu');
+
+            // pass _silent to bypass validation to be able to fetch the model
+            model = new Relationship({_id: id, _silent: true});
+            model.fetch({
+                success: function(model) {
+                    model.unset('_silent');
+
+                    view = new RelationshipView({model: model});
+                    that.elms['page-content'].html(view.render().el);
+                    view.model.on('delete-success', function() {
+                        delete view;
+                        that.navigate('/indinet/relationships', {trigger: true});
+                    });
+                },
+                error: function(model, res) {
+                    if (res.status === 404) {
+                        // TODO: handle 404 Not Found
+                    } else if (res.status === 500) {
+                        // TODO: handle 500 Internal Server Error
+                    }
+                }
+            });
+        },
+        addRelationship: function() {
+            var that = this, model, view;
+
+            // muestra/oculta componentes el menú de indinet
+            $('.news-content').hide();
+            $('.tab-content').show();
+            this.indinetMenuView.$el.show();
+            this.indinetMenuView.select('relationships-menu');
+
+            model = new Relationship();
+            view = new RelationshipEditView({model: model});
+
+            this.elms['page-content'].html(view.render().el);
+            view.on('back', function() {
+                delete view;
+                that.navigate('#/indinet/relationships', {trigger: true});
+            });
+            view.model.on('save-success', function(id) {
+                delete view;
+                that.navigate('#/indinet/relationships/' + id, {trigger: true});
+            });
+        },
+        editRelationship: function(id) {
+            var that = this, model, view;
+
+            // muestra/oculta componentes el menú de indinet
+            $('.news-content').hide();
+            $('.tab-content').show();
+            this.indinetMenuView.$el.show();
+            this.indinetMenuView.select('relationships-menu');
+
+            // pass _silent to bypass validation to be able to fetch the model
+            model = new Relationship({_id: id, _silent: true});
+            model.fetch({
+                success: function(model) {
+                    model.unset('_silent');
+
+                    // Create & render view only after model has been fetched
+                    view = new RelationshipEditView({model: model});
+                    that.elms['page-content'].html(view.render().el);
+                    view.on('back', function() {
+                        delete view;
+                        that.navigate('#/indinet/relationships/' + id, {trigger: true});
+                    });
+                    view.model.on('save-success', function() {
+                        delete view;
+                        that.navigate('#/indinet/relationships/' + id, {trigger: true});
                     });
                 },
                 error: function(model, res) {

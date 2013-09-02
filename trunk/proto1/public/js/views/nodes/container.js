@@ -20,7 +20,7 @@ define('NodeContainerView', [
 
         },
         events: {
-            "keyup .search-query": "search"
+            "keyup #searchNode": "search"
         },
         getData: function() {
 
