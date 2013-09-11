@@ -13,12 +13,10 @@ define('RouterIndinet', [
     'AccountView',
     'AccountEditView',
     'AccountModel',
-    'NodeListView',
     'NodeContainerView',
     'NodeView',
     'NodeEditView',
     'NodeModel',
-    'RelationshipListView',
     'RelationshipContainerView',
     'RelationshipView',
     'RelationshipEditView',
@@ -26,8 +24,8 @@ define('RouterIndinet', [
 ], function($, _, Backbone, IndinetView, IndinetMenuView, 
         AttributeTypeListView, AttributeTypeContainerView, AttributeTypeView, AttributeTypeEditView, AttributeType,
         AccountListView, AccountView, AccountEditView, Account,
-        NodeListView, NodeContainerView, NodeView, NodeEditView, Node,
-        RelationshipListView, RelationshipContainerView, RelationshipView, RelationshipEditView, Relationship) {
+        NodeContainerView, NodeView, NodeEditView, Node,
+        RelationshipContainerView, RelationshipView, RelationshipEditView, Relationship) {
     var IndinetRouter;
 
     IndinetRouter = Backbone.Router.extend({

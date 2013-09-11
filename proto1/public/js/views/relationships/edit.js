@@ -5,13 +5,16 @@ define('RelationshipEditView', [
     'moment',
     'text!templates/relationships/edit.html',
     'RelationshipModel',
-    'AttributeTypeCollection'
-], function($, _, Backbone, moment, tpl, Relationship, AttributeTypeCollection) {
+    'AttributeTypeCollection',
+    'NodeCollection',
+    'NodeContainerView'
+], function($, _, Backbone, moment, tpl, Relationship, AttributeTypeCollection, NodeCollection, NodeContainerView) {
     var RelationshipEditView;
 
     RelationshipEditView = Backbone.View.extend({
         initialize: function() {
             console.log('initialize');
+            // recupera los atributos
             this.attributeTypeCollection = new AttributeTypeCollection();
             this.attributeTypeCollection.fetch({
                 success: function() {
@@ -25,7 +28,22 @@ define('RelationshipEditView', [
                     }
                 }
             });
-            
+
+            // recupera la lista de nodos
+            this.nodeCollection = new NodeCollection();
+            this.nodeCollection.fetch({
+                success: function() {
+                    return true;
+                },
+                error: function(coll, res) {
+                    if (res.status === 404) {
+                        // TODO: handle 404 Not Found
+                    } else if (res.status === 500) {
+                        // TODO: handle 500 Internal Server Error
+                    }
+                }
+            });
+
             this.template = _.template(tpl);
 
             this.errTmpl = '<div class="span4">';
@@ -74,6 +92,14 @@ define('RelationshipEditView', [
 
             // inicializa la lista de valores del typeahead de los atributos
             this.attrKeys = [];
+
+            // inicializa las modal de búsqueda
+            this.viewNodes = new NodeContainerView(function(node) {
+                console.log('nodo recuperado del modal --> %s', JSON.stringify(node));
+            });
+            
+            this.model.bind('change', this.render, this);
+
         },
         events: {
             "focus .input-prepend input": "removeErrMsg",
@@ -81,6 +107,7 @@ define('RelationshipEditView', [
             "click .del-btn": "deleteAttributeRec",
             "click .save-btn": "saveRelationship",
             "click .back-btn": "goBack",
+            "click #searchNode": "nodesModal",
             "change input.attribute-name": "showInputs"
         },
         render: function() {
@@ -90,12 +117,30 @@ define('RelationshipEditView', [
             var relationship = this.model.toJSON();
             tmpl = this.template({relationship: relationship});
             $(this.el).html(tmpl);
-            _.each(_.keys(relationship._relationship._data.data), function(attributeName) {
-                that.next = that.next + 1;
-                $(that.el).find("#afterRow").before(that.attrTempl({attr: that.next.toString(), attrValue: attributeName, value: relationship._relationship._data.data[attributeName]}));
-                var element = '#attribute-input' + that.next.toString();
-                $($(this.el).find(element)).typeahead({source: that.attrList});
-            });
+            if (relationship._id) {
+                // recorre lista de atributos y los muestra para editar
+                // asocia las listas de typeahead
+                _.each(_.keys(relationship._relationship._data.data), function(attributeName) {
+                    that.next = that.next + 1;
+                    $(that.el).find("#afterRow").before(that.attrTempl({attr: that.next.toString(), attrValue: attributeName, value: relationship._relationship._data.data[attributeName]}));
+                    var element = '#attribute-input' + that.next.toString();
+                    $(element).typeahead({source: that.attrList});
+                });
+            } else {
+                // setea los typeahead del input de nueva relación
+                $('#fromNode-input').typeahead({source: ['pepe', 'raul', 'juan']});
+                /*
+                 $('#fromNode-input').typeahead({
+                 source: function(query, process) {
+                 var results = _.map(that.nodeCollection, function(node) {
+                 return node._node._data.data['nombre'];
+                 });
+                 console.log('results typeahead --> %s',JSON.stringify(results));
+                 process(results);
+                 }
+                 });
+                 */
+            }
             return this;
         },
         goBack: function(e) {
@@ -107,7 +152,7 @@ define('RelationshipEditView', [
             e.preventDefault();
             var that = this;
             var relationshipType = 'NO ENCUENTRA EL TIPO @@##@#';
-            
+
             // recupera el tipo de nodo si existe
             var relationship = this.model.toJSON();
             var type = relationship._type;
@@ -123,12 +168,12 @@ define('RelationshipEditView', [
                 else {
                     that.attrKeys = attrKeys;
                 }
-                
+
                 that.next = that.next + 1;
                 $(that.el).find("#afterRow").before(that.attrTempl({attr: that.next.toString(), attrValue: '', value: ''}));
                 var element = '#attribute-input' + that.next.toString();
                 $($(that.el).find(element)).typeahead({source: that.attrKeys, minLength: 0, });
-              
+
             });
 
         },
@@ -216,13 +261,18 @@ define('RelationshipEditView', [
         },
         showInputs: function(ev) {
             //console.log($('#row' + $(ev.target).attr('id').match(/attribute-input(\d{1})/)[1]));
-            var attributeType = this.attributeTypeCollection.where({name:$(ev.target).val()})[0];
-            if (attributeType) {                
+            var attributeType = this.attributeTypeCollection.where({name: $(ev.target).val()})[0];
+            if (attributeType) {
                 var type = attributeType.get("dataType");
                 var attrId = $(ev.target).attr('id').match(/attribute-input(\d{1})/)[1];
                 $('#row' + attrId).find('input.attribute-value').hide();
-                $('[id^=value-input' + attrId + '-'+type+']').show();                
+                $('[id^=value-input' + attrId + '-' + type + ']').show();
             }
+        },
+        nodesModal: function(ev) {
+            this.viewNodes.render();
+            $(this.el).append(this.viewNodes.el);
+            $('#nodesContainerModal').modal('show');
         }
     });
 
@@ -234,7 +284,8 @@ define('RelationshipEditView', [
         }).error(function() {
             callback('TODO');
         });
-    };
+    }
+    ;
 
     // recuepra vía ajax la lista de todos los tipos de nodos
     function getTypes(callback) {
@@ -244,7 +295,8 @@ define('RelationshipEditView', [
         }).error(function() {
             callback('TODO');
         });
-    };
+    }
+    ;
 
     return RelationshipEditView;
 });

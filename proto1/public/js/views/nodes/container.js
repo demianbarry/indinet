@@ -4,23 +4,38 @@ define('NodeContainerView', [
     'backbone',
     'moment',
     'text!templates/nodes/container.html',
-    'NodeCollection',
-    'NodeListView'
-], function($, _, Backbone, moment, tpl, NodeCollection, NodeListView) {
+    'text!templates/nodes/containerModal.html',
+    'text!templates/nodes/list.html',
+    'NodeCollection'
+], function($, _, Backbone, moment, tpl, tplModal, tplList, NodeCollection) {
     var NodeContainerView;
 
     NodeContainerView = Backbone.View.extend({
-        initialize: function() {
+        initialize: function(modalCallback) {
             //var nodeList
 
             this.template = _.template(tpl);
+            this.templateModal = _.template(tplModal);
+            this.templateList = _.template(tplList);
             this.collection = new NodeCollection();
             this.getData();
             this.collection.bind("reset", this.render, this);
+            this.collection.bind("sync", this.render, this);
+
+            // setea si fue llamada al estilo modal
+            if (typeof modalCallback === 'function') {
+                this.modalCallBack = modalCallback;
+                this.modal = true;
+            } else {
+                this.modalCallBack = null;
+                this.modal = false;
+            }
+
 
         },
         events: {
-            "keyup #searchNode": "search"
+            "keyup #searchNode": "search",
+            "click .selection": "seleccionaNodo"
         },
         getData: function() {
 
@@ -39,7 +54,10 @@ define('NodeContainerView', [
         },
         // render template after data refresh
         render: function(data) {
-            $(this.el).html(this.template);
+            if (!this.modal)
+                $(this.el).html(this.template);
+            else
+                $(this.el).html(this.templateModal);
             this.renderList("");
             return this;
             /*
@@ -55,17 +73,23 @@ define('NodeContainerView', [
         renderList: function(letters) {
             $("#nodeList").html("");
 
-            var view = new NodeListView();
             var collectionRender = this.collection.search(letters);
-            $("#nodeList").append(view.render(collectionRender).el);
+            var tmpl = this.templateList({nodes: collectionRender.toJSON(), modal: this.modal});
+            $("#nodeList").append(tmpl);
             $('#searchNode').val(letters);
             $('#searchNode').focus();
-
         },
         search: function(e) {
             e.preventDefault();
             var letters = $("#searchNode").val();
             this.renderList(letters);
+        },
+        seleccionaNodo: function(e) {
+            e.preventDefault();
+            if (this.modal) {
+                $('#nodesContainerModal').modal('hide');
+                this.modalCallBack('nodo recuperado');
+            }
         }
     });
 
