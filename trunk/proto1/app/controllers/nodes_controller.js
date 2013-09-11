@@ -38,7 +38,6 @@ NodesController = function(app, config) {
     // recupera colección de nodos
     app.get(v1 + '/nodes', function index(req, res, next) {
         //console.log('app.get V1/nodes 1');
-        //node = new Node();
         Node.getAll(function(err, nodes) {
             checkErr(
                     next,
@@ -46,6 +45,7 @@ NodesController = function(app, config) {
             function() {
                 // TODO: finish etag support here, check for If-None-Match
                 res.header('ETag', utils.etag(nodes));
+                //console.log(JSON.stringify(nodes));
                 res.json(nodes);
             }
             );

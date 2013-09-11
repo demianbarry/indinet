@@ -14,6 +14,7 @@ define('RelationshipView', [
         },
         events: {
             "click .delete-btn": "removeRelationship",
+            "click .back-btn": "goBack"
         },
         render: function() {
             var that = this, tmpl;
@@ -23,6 +24,11 @@ define('RelationshipView', [
             $(that.el).html(tmpl);
 
             return this;
+        },
+        goBack: function(e) {
+            //console.log('/js/views/relationships/edit.js goBack 2');
+            e.preventDefault();
+            indinet.navigate('#/indinet/relationships', {trigger: true, replace: true});
         },
         removeRelationship: function(e) {
             e.preventDefault();

@@ -4,19 +4,32 @@ define('RelationshipContainerView', [
     'backbone',
     'moment',
     'text!templates/relationships/container.html',
-    'RelationshipCollection',
-    'RelationshipListView'
-], function($, _, Backbone, moment, tpl, RelationshipCollection, RelationshipListView) {
+    'text!templates/nodes/containerModal.html',
+    'text!templates/relationships/list.html',
+    'RelationshipCollection'
+], function($, _, Backbone, moment, tpl, tplModal, tplList, RelationshipCollection) {
     var RelationshipContainerView;
 
     RelationshipContainerView = Backbone.View.extend({
-        initialize: function() {
+        initialize: function(modalCallback) {
             //var relationshipList
 
             this.template = _.template(tpl);
+            this.templateModal = _.template(tplModal);
+            this.templateList = _.template(tplList);
             this.collection = new RelationshipCollection();
             this.getData();
             this.collection.bind("reset", this.render, this);
+            this.collection.bind("sync", this.render, this);
+
+            // setea si fue llamada al estilo modal
+            if (typeof modalCallback === 'function') {
+                this.modalCallBack = modalCallback;
+                this.modal = true;
+            } else {
+                this.modalCallBack = null;
+                this.modal = false;
+            }
 
         },
         events: {
@@ -39,7 +52,10 @@ define('RelationshipContainerView', [
         },
         // render template after data refresh
         render: function(data) {
-            $(this.el).html(this.template);
+            if (!this.modal)
+                $(this.el).html(this.template);
+            else
+                $(this.el).html(this.templateModal);
             this.renderList("");
             return this;
             /*
@@ -55,9 +71,9 @@ define('RelationshipContainerView', [
         renderList: function(letters) {
             $("#relationshipList").html("");
 
-            var view = new RelationshipListView();
             var collectionRender = this.collection.search(letters);
-            $("#relationshipList").append(view.render(collectionRender).el);
+            var tmpl = this.templateList({relationships: collectionRender.toJSON(), modal: this.modal});
+            $("#relationshipList").append(tmpl);
             $('#searchRelationship').val(letters);
             $('#searchRelationship').focus();
 
@@ -66,6 +82,13 @@ define('RelationshipContainerView', [
             e.preventDefault();
             var letters = $("#searchRelationship").val();
             this.renderList(letters);
+        },
+        seleccionaNodo: function(e) {
+            e.preventDefault();
+            if (this.modal) {
+                $('#relationshipsContainerModal').modal('hide');
+                this.modalCallBack('relación recuperado');
+            }
         }
     });
 

@@ -2,8 +2,61 @@
     <div class="span9">
 
         <div class="page-header">        
-            <h3><% if(relationship._id){ %>Editar relación:<%= relationship.fromNodeName %> <%= relationship._type %> <%= relationship.toNodeName %><% } else {%>Nueva relación <% } %></h3>
+            <h3><% if(relationship._id){ %>
+                Editar relación:<%= relationship.fromNodeName %> <%= relationship._type %> <%= relationship.toNodeName %>
+                <%} else {%>Nueva relación <% } %>
+            </h3>
         </div>
+
+        <div class="row span9">
+            <div class="span3">De Nodo</div>
+            <div class="span2">Tipo de Nodo</div>
+            <div class="span3">A Nodo</div>
+        </div>
+
+        <% if(!relationship._id){ %>
+        <form class="form-horizontal">
+            <fieldset>
+                <div class="row">
+                    <div class="input-prepend span3">
+                        <span class="add-on">
+                            <i class="icon-user"></i>
+                        </span>
+                        <input type="text" class="input-medium" id="fromNode-input" 
+                               data-provide="typeahead" data-items="8" autocomplete="off" />
+                        <button class="btn"><i class="icon-search" id="searchNode"></i></button>
+                        <p class="help-block">Ingrese nodo de partida.</p>
+                    </div>
+
+                    <div class="input-prepend span2">
+                        <span class="add-on">
+                            <i class="icon-tag"></i>
+                        </span>
+                        <input type="text" class="input-small" id="nodeType-input"
+                               data-provide="typeahead" data-items="8" autocomplete="off" />
+                        <button class="btn"><i class="icon-search" id="searchRelType"></i></button>
+                        <p class="help-block">Ingrese nodo de partida.</p>
+                    </div>
+
+                    <div class="input-prepend span3">
+                        <span class="add-on">
+                            <i class="icon-user"></i>
+                        </span>
+                        <input type="text" class="input-medium" id="toNode-input"
+                               data-provide="typeahead" data-items="8" autocomplete="off" />
+                        <button class="btn"><i class="icon-search" id="searchNode"></i></button>
+                        <p class="help-block">Ingrese nodo de llegada.</p>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a class="btn save-btn">Guardar</a>
+                    <a class="btn back-btn">Regresar</a>
+                </div>
+
+            </fieldset>
+        </form>
+        <% } else {%>
 
         <div class="row">
             <div class="span4">Atributo</div>
@@ -25,6 +78,9 @@
 
             </fieldset>
         </form>
+
+        <% } %>
+
 
     </div>
 </div>
