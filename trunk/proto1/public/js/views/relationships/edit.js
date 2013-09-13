@@ -6,9 +6,8 @@ define('RelationshipEditView', [
     'text!templates/relationships/edit.html',
     'RelationshipModel',
     'AttributeTypeCollection',
-    'NodeCollection',
     'NodeContainerView'
-], function($, _, Backbone, moment, tpl, Relationship, AttributeTypeCollection, NodeCollection, NodeContainerView) {
+], function($, _, Backbone, moment, tpl, Relationship, AttributeTypeCollection, NodeContainerView) {
     var RelationshipEditView;
 
     RelationshipEditView = Backbone.View.extend({
@@ -17,21 +16,6 @@ define('RelationshipEditView', [
             // recupera los atributos
             this.attributeTypeCollection = new AttributeTypeCollection();
             this.attributeTypeCollection.fetch({
-                success: function() {
-                    return true;
-                },
-                error: function(coll, res) {
-                    if (res.status === 404) {
-                        // TODO: handle 404 Not Found
-                    } else if (res.status === 500) {
-                        // TODO: handle 500 Internal Server Error
-                    }
-                }
-            });
-
-            // recupera la lista de nodos
-            this.nodeCollection = new NodeCollection();
-            this.nodeCollection.fetch({
                 success: function() {
                     return true;
                 },
@@ -94,12 +78,11 @@ define('RelationshipEditView', [
             this.attrKeys = [];
 
             // inicializa las modal de búsqueda
-            this.viewNodes = new NodeContainerView(function(node) {
-                console.log('nodo recuperado del modal --> %s', JSON.stringify(node));
-            });
-            
-            this.model.bind('change', this.render, this);
-
+            if (!this.viewNodes) {
+                this.viewNodes = new NodeContainerView(function(node) {
+                    console.log('nodo recuperado del modal --> %s', JSON.stringify(node));
+                });
+            }
         },
         events: {
             "focus .input-prepend input": "removeErrMsg",
@@ -107,11 +90,12 @@ define('RelationshipEditView', [
             "click .del-btn": "deleteAttributeRec",
             "click .save-btn": "saveRelationship",
             "click .back-btn": "goBack",
-            "click #searchNode": "nodesModal",
+            "click #searchFromNode": "nodesModal",
+            "click #searchToNode": "nodesModal",
             "change input.attribute-name": "showInputs"
         },
         render: function() {
-            console.log('render');
+            //console.log('render');
             var tmpl;
             var that = this;
             var relationship = this.model.toJSON();
@@ -129,6 +113,7 @@ define('RelationshipEditView', [
             } else {
                 // setea los typeahead del input de nueva relación
                 $('#fromNode-input').typeahead({source: ['pepe', 'raul', 'juan']});
+                $(this.el).append(this.viewNodes.el);
                 /*
                  $('#fromNode-input').typeahead({
                  source: function(query, process) {
@@ -271,7 +256,6 @@ define('RelationshipEditView', [
         },
         nodesModal: function(ev) {
             this.viewNodes.render();
-            $(this.el).append(this.viewNodes.el);
             $('#nodesContainerModal').modal('show');
         }
     });

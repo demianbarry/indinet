@@ -12,10 +12,10 @@
         <tbody>
             <% _.each(nodes, function(node) { %>
             <tr class="selection">
-                <td>
+                <td id="_nodeType">
                     <%- node._node._data.data['tipo'] %>
                 </td>
-                <td>
+                <td id="_nodeName">
                     <%- node._node._data.data['nombre'] %>
                 </td>
                 <% if (!modal) { %>

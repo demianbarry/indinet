@@ -87,8 +87,9 @@ define('NodeContainerView', [
         seleccionaNodo: function(e) {
             e.preventDefault();
             if (this.modal) {
+                var _nodeName = $($(e.target).find('#_nodeName')).val();
                 $('#nodesContainerModal').modal('hide');
-                this.modalCallBack('nodo recuperado');
+                this.modalCallBack(_nodeName);
             }
         }
     });

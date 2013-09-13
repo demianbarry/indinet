@@ -16,16 +16,16 @@
                     <%= relationship['fromNodeType'] %>
                 </td>
                 <td>
-                    <a href="#/indinet/nodes/<%- relationship.fromNodeId %>"><%= relationship['fromNodeName'] %></a>
+                    <a href="#/indinet/nodes/<%- relationship.fromNodeId %>" id="fromNodeName"><%= relationship['fromNodeName'] %></a>
                 </td>
                 <td>
-                    <a href="#/indinet/relationships/<%- relationship._id %>"><%= relationship['_type'] %></a>
+                    <a href="#/indinet/relationships/<%- relationship._id %>" id="relationshipType"><%= relationship['_type'] %></a>
                 </td>
                 <td>
                     <%= relationship['toNodeType'] %>
                 </td>
                 <td>
-                    <a href="#/indinet/nodes/<%- relationship.toNodeId %>"><%= relationship['toNodeName'] %></a>
+                    <a href="#/indinet/nodes/<%- relationship.toNodeId %>" id="toNodeName"><%= relationship['toNodeName'] %></a>
                 </td>
             </tr>
             <% }); %>
