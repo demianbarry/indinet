@@ -87,9 +87,11 @@ define('NodeContainerView', [
         seleccionaNodo: function(e) {
             e.preventDefault();
             if (this.modal) {
-                var _nodeName = $($(e.target).find('#_nodeName')).val();
+                var target = $(e.target).parent().get(0);
+                var _nodeName = $(target).find('#_nodeName').get(0);
+                var _nodeNameVal = $.trim($(_nodeName).html());
                 $('#nodesContainerModal').modal('hide');
-                this.modalCallBack(_nodeName);
+                this.modalCallBack(_nodeNameVal);
             }
         }
     });

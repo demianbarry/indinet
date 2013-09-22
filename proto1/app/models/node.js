@@ -109,13 +109,38 @@ Node.getQuery = function getQuery(params, callback) {
     });
 };
 
+// recupera un nodo dado su nombre
+Node.getNodeByName = function getNodeByName(nodeName, callback) {
+    var query = [
+        'START n=node(*)',
+        'WHERE n.nombre = {nodeName}',
+        'RETURN n',
+        'LIMIT 1'
+    ].join('\n');
+
+    var params = {
+        nodeName: nodeName
+    };
+    
+    db.query(query, params, function(err, nodes) {  
+        if (err)
+            return callback(err, []);
+        var nodes = nodes.map(function(node) {
+            return new Node(node['n']);
+        });
+        callback(null, nodes[0]);
+    });
+};
+
 // creates the node and persists (saves) it to the db, incl. indexing it:
 Node.create = function create(data, callback) {
     var node = db.createNode(data);
     var node = new Node(node);
     node.save(function(err) {
         if (err)
-            return callback(err);
+            callback(err,null);
+        else
+            callback(null,node);
         /*
          * TODO: Falta implementar índice en nodos
         node.index(INDEX_NAME, INDEX_KEY, INDEX_VAL, function(err) {
@@ -139,7 +164,7 @@ Node.getAttributesLikeNodeType = function getAttributesLikeNodeType(nodeType, ca
         tipo: nodeType
     };
     
-    console.log('getAttributesLikeNodeType: params --> %s', JSON.stringify(params));
+    //console.log('getAttributesLikeNodeType: params --> %s', JSON.stringify(params));
 
     db.query(query, params, function(err, nodes) {
         if (err)

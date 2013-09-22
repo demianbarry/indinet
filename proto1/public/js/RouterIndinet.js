@@ -97,7 +97,7 @@ define('RouterIndinet', [
             */
         },
         showAttributeType: function(id) {
-            var that = this, view;
+            var model, that = this, view;
 
             //console.log('js/ReuterIndinet.js showAttributeType 1');
 

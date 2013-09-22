@@ -11,7 +11,7 @@ define('NodeEditView', [
 
     NodeEditView = Backbone.View.extend({
         initialize: function() {
-            console.log('initialize');
+            //console.log('initialize');
             this.attributeTypeCollection = new AttributeTypeCollection();
             this.attributeTypeCollection.fetch({
                 success: function() {
@@ -40,23 +40,23 @@ define('NodeEditView', [
             this.next = 0;
             this.attrTempl = '<div class="row show-grid" id="row<%= attr %>">';
             this.attrTempl += '<div class="span4 input-append">';
-            this.attrTempl += '<input type="text" class="span3 input-xlarge attribute-name" id="attribute-input<%= attr %>" data-provide="typeahead" value="<%= attrValue %>" />';
+            this.attrTempl += '<input type="text" class="span3 input-xlarge attribute-name" id="attribute-input<%= attr %>" data-provide="typeahead" autocomplete="off" value="<%= attrValue %>" />';
             this.attrTempl += '<button class="btn"><i class="icon-plus-sign"></i></button>';
             this.attrTempl += '<button class="btn"><i class="icon-search"></i></button>';
             this.attrTempl += '</div>';
             this.attrTempl += '<div class="span4">';
             // string
-            this.attrTempl += '<input type="text" class="input-xlarge attribute-value" id="value-input<%= attr %>-string" data-provide="typeahead" value="<%= value %>"/>';
+            this.attrTempl += '<input type="text" class="input-xlarge attribute-value" id="value-input<%= attr %>-string" data-provide="typeahead" autocomplete="off" value="<%= value %>"/>';
             // number            
             this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-number" value="<%= value %>" style="display:none" />';
             // date
             this.attrTempl += '<input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-date" value="<%= value %>" style="display:none" />';
             // numberRange
-            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-rangeNumber.from" value="<%= value %>" style="display:none" placeholder="desde"/>';
-            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-rangeNumber.to" value="<%= value %>" style="display:none" placeholder="hasta"/>';
+            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-numberRange.from" value="<%= value %>" style="display:none" placeholder="desde"/>';
+            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-numberRange.to" value="<%= value %>" style="display:none" placeholder="hasta"/>';
             // dateRange
-            this.attrTempl += '<input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-rangeDate.from" value="<%= value %>" style="display:none" placeholder="desde"/>';
-            this.attrTempl += '<input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-rangeDate.to" value="<%= value %>" style="display:none" placeholder="hasta"/>';
+            this.attrTempl += '<input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-dateRange.from" value="<%= value %>" style="display:none" placeholder="desde"/>';
+            this.attrTempl += '<input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-dateRange.to" value="<%= value %>" style="display:none" placeholder="hasta"/>';
             // geopoint
             this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-geopoint.lat" value="<%= value.lat ? value.lat : value %>" style="display:none" placeholder="latitud"/>';
             this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-geopoint.lon" value="<%= value.lon ? value.lon : value %>" style="display:none" placeholder="longitud" />';
@@ -66,7 +66,7 @@ define('NodeEditView', [
             this.attrTempl += '</div>';
             this.attrTempl += '</div>';
             this.attrTempl = _.template(this.attrTempl);
-            console.log(this.attrTempl);
+            //console.log(this.attrTempl);
 
             //this.attributes = {};
             // string number date geopoint numberRange dateRange stringList numberList poligon
@@ -131,10 +131,14 @@ define('NodeEditView', [
             var nodeType = 'NO ENCUENTRA EL TIPO @@##@#';
 
             // recupera el tipo de nodo si existe
-            var node = this.model.toJSON();
-            var type = _.values(_.pick(node._node._data.data, 'tipo'))[0];
-            if (type)
-                nodeType = type;
+            if (!this.model.isNew()) {
+                var node = this.model.toJSON();
+                var type = _.values(_.pick(node._node._data.data, 'tipo'))[0];
+                if (type)
+                    nodeType = type;
+            } else {
+                //TODO: buscar en html el tipo 
+            }
 
             getAttrKeys(nodeType, function(err, attrKeys) {
                 if (err) {
@@ -164,33 +168,65 @@ define('NodeEditView', [
             e.preventDefault();
 
             var that = this;
-            var node = this.model.toJSON();
             var dataNode = "{";
             //TODO hay que recorrer todos los elementos de la página e ir al ramdo JSON
-            $(this.el).find(".show-grid").each(function(index, element) {
+            $(that.el).find(".show-grid").each(function(index, element) {
                 var elementAttr = $($(element).children()[0]).children()[0];
-                var elementVal = $($(element).children()[1]).children()[0];
                 var attr = elementAttr.value;
-                var val = elementVal.value;
+                var attributeType = that.attributeTypeCollection.where({name: attr})[0];
+                var type = "string";
+                if (attributeType) {
+                    type = attributeType.get("dataType");
+                }
+                var elementVal = "", desde, hasta, long, lat;
+                switch (type) {
+                    case 'string': 
+                        elementVal = $($(element).children()[1]).children()[0].value;
+                        break;
+                    case 'number': 
+                        elementVal = $($(element).children()[1]).children()[1].value;
+                        break;
+                    case 'date': 
+                        elementVal = $($(element).children()[1]).children()[2].value;
+                        break;
+                    case 'numberRange': 
+                        desde = $($(element).children()[1]).children()[3].value;
+                        hasta = $($(element).children()[1]).children()[4].value;
+                        elementVal = "{'desde':'" + desde + "', 'hasta':'" + hasta + "'}";
+                        break;
+                    case 'dateRange':
+                        desde = $($(element).children()[1]).children()[5].value;
+                        hasta = $($(element).children()[1]).children()[6].value;
+                        elementVal = "{'desde':'" + desde + "', 'hasta':'" + hasta + "'}";
+                        break;
+                    case 'geopoint': 
+                        long = $($(element).children()[1]).children()[7].value;
+                        lat = $($(element).children()[1]).children()[8].value;
+                        elementVal = "{'long':'" + long + "', 'lat':'" + lat + "'}";
+                        break;
+                    default: 
+                        elementVal = $($(element).children()[1]).children()[0].value;
+                        break;
+                }
                 if (attr.length !== 0) {
                     if (dataNode !== '{') {
                         dataNode += ',';
                     }
                     dataNode += '"' + attr + '": ';
-                    dataNode += '"' + val + '"';
+                    dataNode += '"' + elementVal + '"';
                 }
             });
 
             dataNode += '}';
-            console.log('dataNode --> %s', JSON.stringify(dataNode));
+            //console.log('dataNode --> %s', JSON.stringify(dataNode));
             console.log('dataNode --> %s', JSON.stringify(dataNode.toJSON));
 
-            this.model.save({data: dataNode},
+            that.model.save({data: dataNode},
             {
                 silent: false,
                 sync: true,
                 success: function(model, res) {
-                    if (res && _.keys(res.errors).length) {
+                    if (res && res.errors) {
                         //console.log('/js/views/nodes/edit.js saveNode 4 %s', JSON.stringify(res));
                         that.renderErrMsg(res.errors);
                     } else {

@@ -163,8 +163,9 @@ Relationship.getQuery = function getQuery(where, params, callback) {
 };
 
 // creates the relationship and persists (saves) it to the db, incl. indexing it:
-Relationship.create = function create(fromNode, toNode, type, data, callback) {
-    fromNode.createRelationship(toNode, type, data, function(err, rel) {
+Relationship.create = function create(fromNode, relType, toNode, callback) {
+    console.log('fromNode --> %s',JSON.stringify(fromNode._node));
+    fromNode._node.createRelationshipTo(toNode._node, relType, function(err, rel) {
         callback(err, rel);
     });
 };
@@ -198,13 +199,17 @@ Relationship.getAttributesLikeRelationshipType = function getAttributesLikeRelat
 Relationship.getRelationshipTypes = function getRelationshipTypes(callback) {
     var query = [
         'START o=node(*)',
-        'RETURN collect(TYPE(r))'
+        'MATCH o-[r]->d',
+        'RETURN collect(distinct TYPE(r)) AS res'
     ].join('\n');
 
-    db.query(query, function(err, relationshipTypes) {
+    db.query(query, function(err, types) {
         if (err)
             return callback(err, []);
 
-        callback(null, relationshipTypes);
+        var values = _.first(_.values(_.first(types)));
+        console.log("Resultado consulta de tipos de nodos --> %s",JSON.stringify(types));
+        console.log("tipos de nodos --> %s",JSON.stringify(values));
+        callback(null, values);
     });
 };
