@@ -1,6 +1,7 @@
 var v1 = '/api/v1',
         utils = require('../../lib/utils'),
         Relationship = require('../models/relationship'),
+        Node = require('../models/node'),
         _ = require('underscore'),
         NotFound = utils.NotFound,
         checkErr = utils.checkErr,
@@ -17,7 +18,7 @@ RelationshipsController = function(app, config) {
             else {
                 console.log("getAttributesLikeRelationshipType Sale con error %s", err);
                 log(err);
-                res.json(err,404);
+                res.json(err, 404);
             }
         });
     });
@@ -30,7 +31,7 @@ RelationshipsController = function(app, config) {
             else {
                 console.log("getRelationshipTypes Sale con error %s", err);
                 log(err);
-                res.json(err,404);
+                res.json(err, 404);
             }
         });
     });
@@ -89,22 +90,45 @@ RelationshipsController = function(app, config) {
     // crea una nueva relación en la base
     app.post(v1 + '/relationships', function create(req, res, next) {
 
+        var code = 404;
+        console.log(req.body.data);
         var newData = JSON.parse(req.body.data);
-        var fromNode = req.body.fromNode;
-        var toNode = req.body.toNode;
-        var type = req.body.type;
-        
-        Relationship.create(fromNode, toNode, type, newData, function(err, relationship) {
-            var code = 200;
+        var fromNodeName = newData.fromNode;
+        var toNodeName = newData.toNode;
+        var relType = newData.relType;
 
+        // busco a traves de los nombre los nodos de origen y destino
+        Node.getNodeByName(fromNodeName, function(err, fromNode) {
+            //console.log("paso 1");
             if (!err) {
-                res.send(relationship, 201);
+                //console.log("paso 2 %s",err);
+                Node.getNodeByName(toNodeName, function(err, toNode) {
+                    if (!err) {
+                        //console.log("paso 3 %s",err);
+                        Relationship.create(fromNode, relType, toNode, function(err, relationship) {
+                            if (!err) {
+                                console.log("paso 4 %s",err);
+                                res.send(relationship, code);
+                            } else {
+                                console.log("paso 4.err %s",err);
+                                console.log("Create relationship Sale con error %s", err);
+                                log(err);
+                                res.json(err, code);
+                            }
+                        });
+                    } else {
+                        //console.log("paso 3.err %s",err);
+                        console.log("getNodeByName toNode sale con error %s", err);
+                        log(err);
+                        res.json(err, code);
+                    }
+                });
             } else {
-                console.log("Create relationship Sale con error %s", err);
+                //console.log("paso 2.err %s",err);
+                console.log("getNodeByName fromNode sale con error %s", err);
                 log(err);
                 res.json(err, code);
             }
-
         });
     });
 

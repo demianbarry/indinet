@@ -6,13 +6,17 @@ define('RelationshipEditView', [
     'text!templates/relationships/edit.html',
     'RelationshipModel',
     'AttributeTypeCollection',
+    'NodeCollection',
     'NodeContainerView'
-], function($, _, Backbone, moment, tpl, Relationship, AttributeTypeCollection, NodeContainerView) {
+], function($, _, Backbone, moment, tpl, Relationship, AttributeTypeCollection, NodeCollection, NodeContainerView) {
     var RelationshipEditView;
 
     RelationshipEditView = Backbone.View.extend({
         initialize: function() {
-            console.log('initialize');
+            //console.log('initialize');
+            //setea that por cuestiones de visibilidad en callbacks
+            that = this;
+
             // recupera los atributos
             this.attributeTypeCollection = new AttributeTypeCollection();
             this.attributeTypeCollection.fetch({
@@ -28,6 +32,28 @@ define('RelationshipEditView', [
                 }
             });
 
+            // recupera los nodos para búsqueda
+            this.nodeCollection = new NodeCollection();
+            this.nodeCollection.fetch({
+                success: function() {
+                    return true;
+                },
+                error: function(coll, res) {
+                    if (res.status === 404) {
+                        // TODO: handle 404 Not Found
+                    } else if (res.status === 500) {
+                        // TODO: handle 500 Internal Server Error
+                    }
+                }
+            });
+
+            // observer para cambiso en las colecciones
+            this.attributeTypeCollection.bind("reset", this.render, this);
+            this.attributeTypeCollection.bind("sync", this.render, this);
+            this.nodeCollection.bind("reset", this.render, this);
+            this.nodeCollection.bind("sync", this.render, this);
+
+
             this.template = _.template(tpl);
 
             this.errTmpl = '<div class="span4">';
@@ -42,7 +68,7 @@ define('RelationshipEditView', [
             this.next = 0;
             this.attrTempl = '<div class="row show-grid" id="row<%= attr %>">';
             this.attrTempl += '<div class="span4 input-append">';
-            this.attrTempl += '<input type="text" class="span3 input-xlarge attribute-name" id="attribute-input<%= attr %>" data-provide="typeahead" value="<%= attrValue %>" />';
+            this.attrTempl += '<input type="text" class="span3 input-xlarge attribute-name" id="attribute-input<%= attr %>" data-provide="typeahead" autocomplete="off" value="<%= attrValue %>" />';
             this.attrTempl += '<button class="btn"><i class="icon-plus-sign"></i></button>';
             this.attrTempl += '<button class="btn"><i class="icon-search"></i></button>';
             this.attrTempl += '</div>';
@@ -77,10 +103,18 @@ define('RelationshipEditView', [
             // inicializa la lista de valores del typeahead de los atributos
             this.attrKeys = [];
 
+            // inicializa la lista de tipos de relaciones
+            this.relTypes = [];
+
+            // guarda quien llamó a la modal, si fromNode o toNode
+            this.triggerNode = null;
+
             // inicializa las modal de búsqueda
             if (!this.viewNodes) {
-                this.viewNodes = new NodeContainerView(function(node) {
-                    console.log('nodo recuperado del modal --> %s', JSON.stringify(node));
+                this.viewNodes = new NodeContainerView(function(_nodeName) {
+                    console.log('nodo recuperado del modal --> %s', JSON.stringify(_nodeName));
+                    // setea el nombre de nodo en quien lo disparó
+                    $(that.triggerNode).val(_nodeName);
                 });
             }
         },
@@ -90,8 +124,7 @@ define('RelationshipEditView', [
             "click .del-btn": "deleteAttributeRec",
             "click .save-btn": "saveRelationship",
             "click .back-btn": "goBack",
-            "click #searchFromNode": "nodesModal",
-            "click #searchToNode": "nodesModal",
+            "click #searchNode": "nodesModal",
             "change input.attribute-name": "showInputs"
         },
         render: function() {
@@ -112,19 +145,29 @@ define('RelationshipEditView', [
                 });
             } else {
                 // setea los typeahead del input de nueva relación
-                $('#fromNode-input').typeahead({source: ['pepe', 'raul', 'juan']});
                 $(this.el).append(this.viewNodes.el);
-                /*
-                 $('#fromNode-input').typeahead({
-                 source: function(query, process) {
-                 var results = _.map(that.nodeCollection, function(node) {
-                 return node._node._data.data['nombre'];
-                 });
-                 console.log('results typeahead --> %s',JSON.stringify(results));
-                 process(results);
-                 }
-                 });
-                 */
+                var _nodesInput = $($(that.el).find('#_node-input'));
+                _.each(_nodesInput, function(_node) {
+                    $(_node).typeahead({
+                        source: function(query, process) {
+                            //console.log('nodeCollection --> %s', JSON.stringify(that.nodeCollection));
+                            var nodes = that.nodeCollection.pluck('_data');
+                            var results = _.pluck(nodes, 'nombre');
+                            //console.log('results typeahead --> %s', JSON.stringify(results));
+                            process(results);
+                        }
+                    });
+
+                });
+                // setea el typeahead para los tipos de realciones
+                getTypes(function(err, types) {
+                    if (!err) {
+                        that.relTypes = types;
+                        // las setea en el elemento
+                        var _element = $($(that.el).find('#_relType-input'))
+                        _element.typeahead({source: that.relTypes});
+                    }
+                });
             }
             return this;
         },
@@ -172,27 +215,39 @@ define('RelationshipEditView', [
             //console.log('/js/views/relationships/edit.js saveRelationship 1');
             e.preventDefault();
 
-            var that = this;
-            var relationship = this.model.toJSON();
-            var dataRelationship = "{";
-            //TODO hay que recorrer todos los elementos de la página e ir al ramdo JSON
-            $(this.el).find(".show-grid").each(function(index, element) {
-                var elementAttr = $($(element).children()[0]).children()[0];
-                var elementVal = $($(element).children()[1]).children()[0];
-                var attr = elementAttr.value;
-                var val = elementVal.value;
-                if (attr.length !== 0) {
-                    if (dataRelationship !== '{') {
-                        dataRelationship += ',';
-                    }
-                    dataRelationship += '"' + attr + '": ';
-                    dataRelationship += '"' + val + '"';
-                }
-            });
+            var that = this, dataRelationship;
+            // si es actualización de relación recorre atributos y actualiza
+            // sino arma nueva relación
 
-            dataRelationship += '}';
+            if (!this.model.isNew()) {
+                // existe la relación, actualiza los atributos
+                dataRelationship = "{";
+                //TODO hay que recorrer todos los elementos de la página e ir al ramdo JSON
+                $(this.el).find(".show-grid").each(function(index, element) {
+                    var elementAttr = $($(element).children()[0]).children()[0];
+                    var elementVal = $($(element).children()[1]).children()[0];
+                    var attr = elementAttr.value;
+                    var val = elementVal.value;
+                    if (attr.length !== 0) {
+                        if (dataRelationship !== '{') {
+                            dataRelationship += ',';
+                        }
+                        dataRelationship += '"' + attr + '": ';
+                        dataRelationship += '"' + val + '"';
+                    }
+                });
+
+                dataRelationship += '}';
+            } else {
+                //es nueva relación arma los datos con from, tipo y to
+                var element = $(this.el).find(".new-relationship")
+                var fromNode = $($($(element).children()[0]).children()[1]).val();
+                var relType = $($($(element).children()[1]).children()[1]).val();
+                var toNode = $($($(element).children()[2]).children()[1]).val();
+                dataRelationship = '{"fromNode":"' + fromNode + '", "relType":"' + relType + '", "toNode":"' + toNode + '"}';
+            }
             console.log('dataRelationship --> %s', JSON.stringify(dataRelationship));
-            console.log('dataRelationship --> %s', JSON.stringify(dataRelationship.toJSON));
+            //console.log('dataRelationship --> %s', JSON.stringify(dataRelationship.toJSON));
 
             this.model.save({data: dataRelationship},
             {
@@ -255,6 +310,9 @@ define('RelationshipEditView', [
             }
         },
         nodesModal: function(ev) {
+            var _parent = $($(ev.target).parent().get(0)).parent().get(0);
+            var _nodoObjetivo = $(_parent).find('#_node-input').get(0)
+            this.triggerNode = _nodoObjetivo;
             this.viewNodes.render();
             $('#nodesContainerModal').modal('show');
         }

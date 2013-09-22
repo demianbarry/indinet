@@ -72,16 +72,18 @@ NodesController = function(app, config) {
     // crea un nuevo nodo en la base
     app.post(v1 + '/nodes', function create(req, res, next) {
 
+        console.log("create node data --> %s",req.body.data);
         var newData = JSON.parse(req.body.data);
         Node.create(newData, function(err, node) {
-            var code = 200;
+            var code = 401;
 
             if (!err) {
-                res.send(node, 201);
+                console.log('nodo %s guardado exitosamente',node._id);
+                res.json(node, 200);
             } else {
                 console.log("Create node Sale con error %s", err);
                 log(err);
-                res.json(err, 500);
+                res.json(err, code);
             }
 
         });

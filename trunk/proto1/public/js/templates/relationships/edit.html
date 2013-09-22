@@ -17,14 +17,14 @@
         <% if(!relationship._id){ %>
         <form class="form-horizontal">
             <fieldset>
-                <div class="row">
+                <div class="row new-relationship">
                     <div class="input-prepend span3">
                         <span class="add-on">
                             <i class="icon-user"></i>
                         </span>
-                        <input type="text" class="input-medium" id="fromNode-input" 
+                        <input type="text" class="input-medium" id="_node-input" 
                                data-provide="typeahead" data-items="8" autocomplete="off" />
-                        <button class="btn"><i class="icon-search" id="searchFromNode"></i></button>
+                        <button class="btn"><i class="icon-search" id="searchNode"></i></button>
                         <p class="help-block">Ingrese nodo de partida.</p>
                     </div>
 
@@ -32,19 +32,19 @@
                         <span class="add-on">
                             <i class="icon-tag"></i>
                         </span>
-                        <input type="text" class="input-small" id="nodeType-input"
+                        <input type="text" class="input-small" id="_relType-input"
                                data-provide="typeahead" data-items="8" autocomplete="off" />
                         <button class="btn"><i class="icon-search" id="searchRelType"></i></button>
-                        <p class="help-block">Ingrese nodo de partida.</p>
+                        <p class="help-block">Ingrese nodo de llegada.</p>
                     </div>
 
                     <div class="input-prepend span3">
                         <span class="add-on">
                             <i class="icon-user"></i>
                         </span>
-                        <input type="text" class="input-medium" id="toNode-input"
+                        <input type="text" class="input-medium" id="_node-input"
                                data-provide="typeahead" data-items="8" autocomplete="off" />
-                        <button class="btn"><i class="icon-search" id="searchToNode"></i></button>
+                        <button class="btn"><i class="icon-search" id="searchNode"></i></button>
                         <p class="help-block">Ingrese nodo de llegada.</p>
                     </div>
                 </div>
