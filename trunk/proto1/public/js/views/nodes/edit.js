@@ -52,14 +52,14 @@ define('NodeEditView', [
             // date
             this.attrTempl += '<input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-date" value="<%= value %>" style="display:none" />';
             // numberRange
-            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-numberRange.from" value="<%= value %>" style="display:none" placeholder="desde"/>';
-            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-numberRange.to" value="<%= value %>" style="display:none" placeholder="hasta"/>';
+            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-numberRange" value="<%= value %>" style="display:none" placeholder="desde"/>';
+            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-numberRange" value="<%= value2 %>" style="display:none" placeholder="hasta"/>';
             // dateRange
-            this.attrTempl += '<input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-dateRange.from" value="<%= value %>" style="display:none" placeholder="desde"/>';
-            this.attrTempl += '<input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-dateRange.to" value="<%= value %>" style="display:none" placeholder="hasta"/>';
+            this.attrTempl += '<input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-dateRange" value="<%= value %>" style="display:none" placeholder="desde"/>';
+            this.attrTempl += '<input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-dateRange" value="<%= value2 %>" style="display:none" placeholder="hasta"/>';
             // geopoint
-            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-geopoint.lat" value="<%= value.lat ? value.lat : value %>" style="display:none" placeholder="latitud"/>';
-            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-geopoint.lon" value="<%= value.lon ? value.lon : value %>" style="display:none" placeholder="longitud" />';
+            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-geopoint" value="<%= value %>" style="display:none" placeholder="latitud"/>';
+            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-geopoint" value="<%= value2 %>" style="display:none" placeholder="longitud" />';
             this.attrTempl += '</div>';
             this.attrTempl += '<div class="span1">';
             this.attrTempl += '<button id="deleteButton<%= attr %>" class="btn btn-danger del-btn" type="button" name="<%= attr %>">-</button>';
@@ -110,11 +110,45 @@ define('NodeEditView', [
 
                 _.each(_.keys(node._node._data.data), function(attributeName) {
                     that.next = that.next + 1;
-                    $(that.el).find("#afterRow").before(that.attrTempl({attr: that.next.toString(), attrValue: attributeName, value: node._node._data.data[attributeName]}));
+                    var attributeType = that.attributeTypeCollection.where({name: attributeName})[0];
+                    var type = "string";
+                    if (attributeType) {
+                        type = attributeType.get("dataType");
+                    }
+                    var attributeValue = node._node._data.data[attributeName], val = "", val2 = "";
+                    attributeValue = attributeValue.replace(/'/g, '"');
+                    switch (type) {
+                        case 'string':
+                            val = attributeValue;
+                            break;
+                        case 'number':
+                            val = attributeValue;
+                            break;
+                        case 'date':
+                            val = attributeValue;
+                            break;
+                        case 'numberRange':
+                            val = JSON.parse(attributeValue).desde;
+                            val2 = JSON.parse(attributeValue).hasta;
+                            break;
+                        case 'dateRange':
+                            val = JSON.parse(attributeValue).desde;
+                            val2 = JSON.parse(attributeValue).hasta;
+                            break;
+                        case 'geopoint':
+                            val = JSON.parse(attributeValue).lat;
+                            val2 = JSON.parse(attributeValue).long;
+                            break;
+                        default:
+                            val = attributeValue;
+                            break;
+                    }
+                    $(that.el).find("#afterRow").before(that.attrTempl({attr: that.next.toString(), attrValue: attributeName, value: val, value2: val2}));
                     var element = '#attribute-input' + that.next.toString();
                     $($(that.el).find(element)).typeahead({source: that.attrList});
                     var valTipo = '#value-input' + that.next.toString() + "-string";
                     $($(that.el).find(valTipo)).typeahead({source: that.nodeTypes});
+                    showDataType(type,that.next.toString());
                 });
             });
 
@@ -150,7 +184,7 @@ define('NodeEditView', [
                 }
 
                 that.next = that.next + 1;
-                $(that.el).find("#afterRow").before(that.attrTempl({attr: that.next.toString(), attrValue: '', value: ''}));
+                $(that.el).find("#afterRow").before(that.attrTempl({attr: that.next.toString(), attrValue: '', value: '', value2: ''}));
                 var element = '#attribute-input' + that.next.toString();
                 $($(that.el).find(element)).typeahead({source: that.attrKeys, minLength: 0, });
 
@@ -180,16 +214,16 @@ define('NodeEditView', [
                 }
                 var elementVal = "", desde, hasta, long, lat;
                 switch (type) {
-                    case 'string': 
+                    case 'string':
                         elementVal = $($(element).children()[1]).children()[0].value;
                         break;
-                    case 'number': 
+                    case 'number':
                         elementVal = $($(element).children()[1]).children()[1].value;
                         break;
-                    case 'date': 
+                    case 'date':
                         elementVal = $($(element).children()[1]).children()[2].value;
                         break;
-                    case 'numberRange': 
+                    case 'numberRange':
                         desde = $($(element).children()[1]).children()[3].value;
                         hasta = $($(element).children()[1]).children()[4].value;
                         elementVal = "{'desde':'" + desde + "', 'hasta':'" + hasta + "'}";
@@ -199,12 +233,12 @@ define('NodeEditView', [
                         hasta = $($(element).children()[1]).children()[6].value;
                         elementVal = "{'desde':'" + desde + "', 'hasta':'" + hasta + "'}";
                         break;
-                    case 'geopoint': 
-                        long = $($(element).children()[1]).children()[7].value;
-                        lat = $($(element).children()[1]).children()[8].value;
-                        elementVal = "{'long':'" + long + "', 'lat':'" + lat + "'}";
+                    case 'geopoint':
+                        lat = $($(element).children()[1]).children()[7].value;
+                        long = $($(element).children()[1]).children()[8].value;
+                        elementVal = "{'lat':'" + lat + "', 'long':'" + long + "'}";
                         break;
-                    default: 
+                    default:
                         elementVal = $($(element).children()[1]).children()[0].value;
                         break;
                 }
@@ -277,8 +311,7 @@ define('NodeEditView', [
             if (attributeType) {
                 var type = attributeType.get("dataType");
                 var attrId = $(ev.target).attr('id').match(/attribute-input(\d{1})/)[1];
-                $('#row' + attrId).find('input.attribute-value').hide();
-                $('[id^=value-input' + attrId + '-' + type + ']').show();
+                showDataType(type, attrId);
             }
         }
     });
@@ -304,6 +337,12 @@ define('NodeEditView', [
         });
     }
     ;
+
+    // muestra el tipo de atributo que corresponde según el data type
+    function showDataType(type, attrId) {
+        $('#row' + attrId).find('input.attribute-value').hide();
+        $('#row' + attrId).find('#value-input' + attrId + '-' + type).show();
+    }
 
     return NodeEditView;
 });
