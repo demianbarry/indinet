@@ -63,7 +63,7 @@ Node.prototype.del = function del(callback) {
 // static methods:
 
 Node.get = function get(id, callback) {
-    console.log(typeof id);
+    //console.log(typeof id);
     db.getNodeById(id, function(err, node) {
         if (err)
             return callback(err);
@@ -135,12 +135,13 @@ Node.getNodeByName = function getNodeByName(nodeName, callback) {
 // creates the node and persists (saves) it to the db, incl. indexing it:
 Node.create = function create(data, callback) {
     var node = db.createNode(data);
-    var node = new Node(node);
     node.save(function(err) {
         if (err)
             callback(err,null);
-        else
+        else {
+            node = new Node(node);
             callback(null,node);
+        }
         /*
          * TODO: Falta implementar índice en nodos
         node.index(INDEX_NAME, INDEX_KEY, INDEX_VAL, function(err) {
