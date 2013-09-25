@@ -85,8 +85,8 @@ define('NodeContainerView', [
             this.renderList(letters);
         },
         seleccionaNodo: function(e) {
-            e.preventDefault();
             if (this.modal) {
+                e.preventDefault();
                 var target = $(e.target).parent().get(0);
                 var _nodeName = $(target).find('#_nodeName').get(0);
                 var _nodeNameVal = $.trim($(_nodeName).html());
