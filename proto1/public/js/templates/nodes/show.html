@@ -12,7 +12,17 @@
                     <tr>
                         <td><h5><%= attributeName %>:</h5></td>
                         <td>
-                            <%= node._node._data.data[attributeName] %>
+                            <% var attributeValue = node._node._data.data[attributeName]; %> 
+                            <% if (typeof attributeValue === "string" && attributeValue.indexOf("{") === -1) { %>
+                                <%= attributeValue %>
+                            <% } else {%>
+                                <% attributeValue = attributeValue.replace(/'/g, '"'); %>
+                                <% attributeValue = JSON.parse(attributeValue); %>
+                                <%  _.each(_.keys(attributeValue), function(elementAttribute) { %>
+                                    <%= elementAttribute %>:
+                                    <%= attributeValue[elementAttribute] %>
+                                <% }); %>
+                            <% } %>
                         </td>
                     </tr>
                      <% }); %>
