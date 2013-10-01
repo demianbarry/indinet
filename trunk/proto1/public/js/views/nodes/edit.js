@@ -13,18 +13,11 @@ define('NodeEditView', [
         initialize: function() {
             //console.log('initialize');
             this.attributeTypeCollection = new AttributeTypeCollection();
-            this.attributeTypeCollection.fetch({
-                success: function() {
-                    return true;
-                },
-                error: function(coll, res) {
-                    if (res.status === 404) {
-                        // TODO: handle 404 Not Found
-                    } else if (res.status === 500) {
-                        // TODO: handle 500 Internal Server Error
-                    }
-                }
-            });
+            this.getAttributeTypes();
+
+            this.attributeTypeCollection.bind("reset", this.getAttributeTypes, this);
+            this.attributeTypeCollection.bind("sync", this.getAttributeTypes, this);
+
 
             this.template = _.template(tpl);
 
@@ -36,12 +29,24 @@ define('NodeEditView', [
             this.errTmpl += '</div>';
             this.errTmpl = _.template(this.errTmpl);
 
+            this.addAttrTmpl = '<div class="span6">';
+            this.addAttrTmpl += '<div class="alert alert-block alert-error fade in">';
+            this.addAttrTmpl += '<button type="button" class="close" data-dismiss="alert">x</button>';
+            this.addAttrTmpl += '<h4>El atributo <%- attr %> no existe</h4>';
+            this.addAttrTmpl += '<p>Debe ingresar este atributo o seleccionar uno existente para el tipo de nodo</p>';
+            this.addAttrTmpl += '<p>';
+            this.addAttrTmpl += '<a class="btn btn-primary" id="_addAttr">Agregar atributo</a> \n';
+            this.addAttrTmpl += '</p>';
+            this.addAttrTmpl += '</div>';
+            this.addAttrTmpl += '</div>';
+            this.addAttrTmpl = _.template(this.addAttrTmpl);
+
             // Configura template para agregar un registro de atributo
             this.next = 0;
             this.attrTempl = '<div class="row show-grid" id="row<%= attr %>">';
             this.attrTempl += '<div class="span4 input-append">';
             this.attrTempl += '<input type="text" class="span3 input-xlarge attribute-name" id="attribute-input<%= attr %>" data-provide="typeahead" autocomplete="off" value="<%= attrValue %>" />';
-            this.attrTempl += '<button class="btn"><i class="icon-plus-sign"></i></button>';
+            this.attrTempl += '<button class="btn" id="_addAttr"><i class="icon-plus-sign"></i></button>';
             this.attrTempl += '<button class="btn"><i class="icon-search"></i></button>';
             this.attrTempl += '</div>';
             this.attrTempl += '<div class="span4">';
@@ -76,16 +81,31 @@ define('NodeEditView', [
             this.attrKeys = [];
             this.nodeTypes = [];
         },
+        getAttributeTypes: function() {
+            this.attributeTypeCollection.fetch({
+                success: function() {
+                    return true;
+                },
+                error: function(coll, res) {
+                    if (res.status === 404) {
+                        // TODO: handle 404 Not Found
+                    } else if (res.status === 500) {
+                        // TODO: handle 500 Internal Server Error
+                    }
+                }
+            });
+        },
         events: {
             "focus .input-prepend input": "removeErrMsg",
             "click #addButton": "addAttributeRec",
             "click .del-btn": "deleteAttributeRec",
             "click .save-btn": "saveNode",
             "click .back-btn": "goBack",
-            "change input.attribute-name": "showInputs"
+            "change input.attribute-name": "showInputs",
+            "click #_addAttr": "addAttr",
         },
         render: function() {
-            console.log('render');
+            //console.log('render');
             var tmpl;
             var that = this;
             var node = this.model.toJSON();
@@ -148,7 +168,7 @@ define('NodeEditView', [
                     $($(that.el).find(element)).typeahead({source: that.attrList});
                     var valTipo = '#value-input' + that.next.toString() + "-string";
                     $($(that.el).find(valTipo)).typeahead({source: that.nodeTypes});
-                    showDataType(type,that.next.toString());
+                    showDataType(type, that.next.toString());
                 });
             });
 
@@ -305,14 +325,27 @@ define('NodeEditView', [
         removeErrMsg: function() {
             $(this.el).find('.alert-error').remove();
         },
+        renderAttrMsg: function(attrName) {
+            $(this.el).find('form').after(this.addAttrTmpl({attr: attrName}));
+        },
         showInputs: function(ev) {
             //console.log($('#row' + $(ev.target).attr('id').match(/attribute-input(\d{1})/)[1]));
-            var attributeType = this.attributeTypeCollection.where({name: $(ev.target).val()})[0];
+            var attrName = $(ev.target).val();
+            Backbone.sync("read", this.attributeTypeCollection);
+            var attributeType = this.attributeTypeCollection.where({name: attrName})[0];
             if (attributeType) {
                 var type = attributeType.get("dataType");
                 var attrId = $(ev.target).attr('id').match(/attribute-input(\d{1})/)[1];
                 showDataType(type, attrId);
+            } else {
+                // no existe el atributo, debe crearlo
+                this.renderAttrMsg(attrName);
+                $(ev.target).val("");
             }
+        },
+        addAttr: function(ev) {
+            // TODO: Implementar modal de alta de atributo - Refrescar valores de atributos de la colección
+            indinet.navigate('#/indinet/attributeTypes/new', {trigger: true, replace: false});
         }
     });
 
