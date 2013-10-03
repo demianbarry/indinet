@@ -1,0 +1,27 @@
+<div class="row show-grid" id="row<%= attr %>">
+    <div class="span4 input-append">
+        <input type="text" class="span3 input-xlarge attribute-name" id="attribute-input<%= attr %>" data-provide="typeahead" autocomplete="off" value="<%= attrValue %>" />
+        <button class="btn" id="_addAttr"><i class="icon-plus-sign"></i></button>
+        <button class="btn"><i class="icon-search"></i></button>
+    </div>
+    <div class="span4">
+        <!-- string -->
+        <input type="text" class="input-xlarge attribute-value" id="value-input<%= attr %>-string" data-provide="typeahead" autocomplete="off" value="<%= value %>"/>
+        <!-- number            -->
+        <input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-number" value="<%= value %>" style="display:none" />
+        <!-- date-->
+        <input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-date" value="<%= value %>" style="display:none" />
+        <!-- numberRange -->
+        <input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-numberRange" value="<%= value %>" style="display:none" placeholder="desde"/>
+        <input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-numberRange" value="<%= value2 %>" style="display:none" placeholder="hasta"/>
+        <!-- dateRange -->
+        <input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-dateRange" value="<%= value %>" style="display:none" placeholder="desde"/>
+        <input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-dateRange" value="<%= value2 %>" style="display:none" placeholder="hasta"/>
+        <!-- geopoint -->
+        <input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-geopoint" value="<%= value %>" style="display:none" placeholder="latitud"/>
+        <input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-geopoint" value="<%= value2 %>" style="display:none" placeholder="longitud" />
+    </div> 
+    <div class="span1">
+        <button id="deleteButton<%= attr %>" class="btn btn-danger del-btn" type="button" name="<%= attr %>">-</button>
+    </div>
+</div>

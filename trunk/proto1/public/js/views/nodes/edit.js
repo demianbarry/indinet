@@ -4,9 +4,12 @@ define('NodeEditView', [
     'backbone',
     'moment',
     'text!templates/nodes/edit.html',
+    'text!templates/errTmpl.html',
+    'text!templates/addAttrTmpl.html',
+    'text!templates/attrTmpl.html',
     'NodeModel',
     'AttributeTypeCollection'
-], function($, _, Backbone, moment, tpl, Node, AttributeTypeCollection) {
+], function($, _, Backbone, moment, tpl, errTmpl, addAttrTmpl, attrTmpl, Node, AttributeTypeCollection) {
     var NodeEditView;
 
     NodeEditView = Backbone.View.extend({
@@ -20,62 +23,17 @@ define('NodeEditView', [
 
 
             this.template = _.template(tpl);
-
-            this.errTmpl = '<div class="span4">';
-            this.errTmpl += '<div class="alert alert-error">';
-            this.errTmpl += '<button type="button" class="close" data-dismiss="alert">x</button>';
-            this.errTmpl += '<%- msg %>';
-            this.errTmpl += '</div>';
-            this.errTmpl += '</div>';
-            this.errTmpl = _.template(this.errTmpl);
-
-            this.addAttrTmpl = '<div class="span6">';
-            this.addAttrTmpl += '<div class="alert alert-block alert-error fade in">';
-            this.addAttrTmpl += '<button type="button" class="close" data-dismiss="alert">x</button>';
-            this.addAttrTmpl += '<h4>El atributo <%- attr %> no existe</h4>';
-            this.addAttrTmpl += '<p>Debe ingresar este atributo o seleccionar uno existente para el tipo de nodo</p>';
-            this.addAttrTmpl += '<p>';
-            this.addAttrTmpl += '<a class="btn btn-primary" id="_addAttr">Agregar atributo</a> \n';
-            this.addAttrTmpl += '</p>';
-            this.addAttrTmpl += '</div>';
-            this.addAttrTmpl += '</div>';
-            this.addAttrTmpl = _.template(this.addAttrTmpl);
+            this.errTmpl = _.template(errTmpl);
+            this.addAttrTmpl = _.template(addAttrTmpl);
 
             // Configura template para agregar un registro de atributo
             this.next = 0;
-            this.attrTempl = '<div class="row show-grid" id="row<%= attr %>">';
-            this.attrTempl += '<div class="span4 input-append">';
-            this.attrTempl += '<input type="text" class="span3 input-xlarge attribute-name" id="attribute-input<%= attr %>" data-provide="typeahead" autocomplete="off" value="<%= attrValue %>" />';
-            this.attrTempl += '<button class="btn" id="_addAttr"><i class="icon-plus-sign"></i></button>';
-            this.attrTempl += '<button class="btn"><i class="icon-search"></i></button>';
-            this.attrTempl += '</div>';
-            this.attrTempl += '<div class="span4">';
-            // string
-            this.attrTempl += '<input type="text" class="input-xlarge attribute-value" id="value-input<%= attr %>-string" data-provide="typeahead" autocomplete="off" value="<%= value %>"/>';
-            // number            
-            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-number" value="<%= value %>" style="display:none" />';
-            // date
-            this.attrTempl += '<input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-date" value="<%= value %>" style="display:none" />';
-            // numberRange
-            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-numberRange" value="<%= value %>" style="display:none" placeholder="desde"/>';
-            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-numberRange" value="<%= value2 %>" style="display:none" placeholder="hasta"/>';
-            // dateRange
-            this.attrTempl += '<input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-dateRange" value="<%= value %>" style="display:none" placeholder="desde"/>';
-            this.attrTempl += '<input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-dateRange" value="<%= value2 %>" style="display:none" placeholder="hasta"/>';
-            // geopoint
-            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-geopoint" value="<%= value %>" style="display:none" placeholder="latitud"/>';
-            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-geopoint" value="<%= value2 %>" style="display:none" placeholder="longitud" />';
-            this.attrTempl += '</div>';
-            this.attrTempl += '<div class="span1">';
-            this.attrTempl += '<button id="deleteButton<%= attr %>" class="btn btn-danger del-btn" type="button" name="<%= attr %>">-</button>';
-            this.attrTempl += '</div>';
-            this.attrTempl += '</div>';
-            this.attrTempl = _.template(this.attrTempl);
-            //console.log(this.attrTempl);
+            this.attrTmpl = _.template(attrTmpl);
+            //console.log(this.attrTmpl);
 
             //this.attributes = {};
             // string number date geopoint numberRange dateRange stringList numberList poligon
-            //this.attributes.string=_.template(this.attrTempl += '<input type="text" class="input-xlarge" id="value-input<%= attr %>" value="val<%= value %>" />');
+            //this.attributes.string=_.template(this.attrTmpl += '<input type="text" class="input-xlarge" id="value-input<%= attr %>" value="val<%= value %>" />');
 
             // inicializa la lista de valores del typeahead de los atributos
             this.attrKeys = [];
@@ -163,7 +121,7 @@ define('NodeEditView', [
                             val = attributeValue;
                             break;
                     }
-                    $(that.el).find("#afterRow").before(that.attrTempl({attr: that.next.toString(), attrValue: attributeName, value: val, value2: val2}));
+                    $(that.el).find("#afterRow").before(that.attrTmpl({attr: that.next.toString(), attrValue: attributeName, value: val, value2: val2}));
                     var element = '#attribute-input' + that.next.toString();
                     $($(that.el).find(element)).typeahead({source: that.attrList});
                     var valTipo = '#value-input' + that.next.toString() + "-string";
@@ -204,7 +162,7 @@ define('NodeEditView', [
                 }
 
                 that.next = that.next + 1;
-                $(that.el).find("#afterRow").before(that.attrTempl({attr: that.next.toString(), attrValue: '', value: '', value2: ''}));
+                $(that.el).find("#afterRow").before(that.attrTmpl({attr: that.next.toString(), attrValue: '', value: '', value2: ''}));
                 var element = '#attribute-input' + that.next.toString();
                 $($(that.el).find(element)).typeahead({source: that.attrKeys, minLength: 0, });
 
