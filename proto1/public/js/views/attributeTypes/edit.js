@@ -49,7 +49,7 @@ define('AttributeTypeEditView', [
             var name, dataType, mandatory, validator, that;
 
             e.preventDefault();
-
+            
             that = this;
             name = $.trim($('#name-input').val());
             dataType = $.trim($('#dataType-input').val());
