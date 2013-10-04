@@ -181,7 +181,7 @@ define('NodeEditView', [
 
             var that = this;
             var dataNode = "{";
-            //TODO hay que recorrer todos los elementos de la página e ir al ramdo JSON
+            //TODO hay que recorrer todos los elementos de la página e ir armando JSON
             $(that.el).find(".show-grid").each(function(index, element) {
                 var elementAttr = $($(element).children()[0]).children()[0];
                 var attr = elementAttr.value;
