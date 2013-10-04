@@ -13,9 +13,10 @@ RelationshipsController = function(app, config) {
     // recupera keys de attributos de un tipo de relación en particular
     app.post('/relationship/getAttributesLikeRelationshipType', function getAttributesLikeRelationshipType(req, res, next) {
         Relationship.getAttributesLikeRelationshipType(req.param('relationshipType', null), function(err, keys) {
-            if (!err)
-                res.send(keys, 201);
-            else {
+            if (!err) {
+                //console.log("keys recuperadas --> %s", keys);
+                res.json(keys, 200);
+            } else {
                 console.log("getAttributesLikeRelationshipType Sale con error %s", err);
                 log(err);
                 res.json(err, 404);
@@ -54,7 +55,7 @@ RelationshipsController = function(app, config) {
     });
 
     // recupera la relaciónes de un nodo en particular
-    app.get(v1 + '/relationships/node/:id', function show(req, res, next) {
+    app.get(v1 + '/relationships/node/:id', function showNode(req, res, next) {
         //console.log('Entra en V1/relationships/:id');
         Relationship.getRelationshipFromNode(req.params.id, function(err, relationship) {
             checkErr(

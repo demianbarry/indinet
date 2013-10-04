@@ -120,7 +120,7 @@ define('RelationshipEditView', [
                         if (attributeType) {
                             type = attributeType.get("dataType");
                         }
-                        var attributeValue = node._node._data.data[attributeName], val = "", val2 = "";
+                        var attributeValue = relationship._data[attributeName], val = "", val2 = "";
                         attributeValue = attributeValue.replace(/'/g, '"');
                         switch (type) {
                             case 'string':
@@ -152,7 +152,7 @@ define('RelationshipEditView', [
                         var element = '#attribute-input' + that.next.toString();
                         $($(that.el).find(element)).typeahead({source: that.attrList});
                         var valTipo = '#value-input' + that.next.toString() + "-string";
-                        $($(that.el).find(valTipo)).typeahead({source: that.nodeTypes});
+                        $($(that.el).find(valTipo)).typeahead({source: that.relTypes});
                         showDataType(type, that.next.toString());
                     });
                 } else {
@@ -229,18 +229,51 @@ define('RelationshipEditView', [
             if (!this.model.isNew()) {
                 // existe la relación, actualiza los atributos
                 dataRelationship = "{";
-                //TODO hay que recorrer todos los elementos de la página e ir al ramdo JSON
-                $(this.el).find(".show-grid").each(function(index, element) {
+                //TODO hay que recorrer todos los elementos de la página e ir armando JSON
+                $(that.el).find(".show-grid").each(function(index, element) {
                     var elementAttr = $($(element).children()[0]).children()[0];
-                    var elementVal = $($(element).children()[1]).children()[0];
                     var attr = elementAttr.value;
-                    var val = elementVal.value;
+                    var attributeType = that.attributeTypeCollection.where({name: attr})[0];
+                    var type = "string";
+                    if (attributeType) {
+                        type = attributeType.get("dataType");
+                    }
+                    var elementVal = "", desde, hasta, long, lat;
+                    switch (type) {
+                        case 'string':
+                            elementVal = $($(element).children()[1]).children()[0].value;
+                            break;
+                        case 'number':
+                            elementVal = $($(element).children()[1]).children()[1].value;
+                            break;
+                        case 'date':
+                            elementVal = $($(element).children()[1]).children()[2].value;
+                            break;
+                        case 'numberRange':
+                            desde = $($(element).children()[1]).children()[3].value;
+                            hasta = $($(element).children()[1]).children()[4].value;
+                            elementVal = "{'desde':'" + desde + "', 'hasta':'" + hasta + "'}";
+                            break;
+                        case 'dateRange':
+                            desde = $($(element).children()[1]).children()[5].value;
+                            hasta = $($(element).children()[1]).children()[6].value;
+                            elementVal = "{'desde':'" + desde + "', 'hasta':'" + hasta + "'}";
+                            break;
+                        case 'geopoint':
+                            lat = $($(element).children()[1]).children()[7].value;
+                            long = $($(element).children()[1]).children()[8].value;
+                            elementVal = "{'lat':'" + lat + "', 'long':'" + long + "'}";
+                            break;
+                        default:
+                            elementVal = $($(element).children()[1]).children()[0].value;
+                            break;
+                    }
                     if (attr.length !== 0) {
                         if (dataRelationship !== '{') {
                             dataRelationship += ',';
                         }
                         dataRelationship += '"' + attr + '": ';
-                        dataRelationship += '"' + val + '"';
+                        dataRelationship += '"' + elementVal + '"';
                     }
                 });
 
@@ -269,7 +302,7 @@ define('RelationshipEditView', [
                         var _id = model.get('_id');
                         //console.log("relación guardada exitosamente: %s",_id);
                         model.trigger('save-success', _id);
-                        that.render();
+                        //that.render();
                     }
                 },
                 error: function(model, res) {
@@ -309,6 +342,9 @@ define('RelationshipEditView', [
         },
         removeErrMsg: function() {
             $(this.el).find('.alert-error').remove();
+        },
+        renderAttrMsg: function(attrName) {
+            $(this.el).find('form').after(this.addAttrTmpl({attr: attrName}));
         },
         showInputs: function(ev) {
             //console.log($('#row' + $(ev.target).attr('id').match(/attribute-input(\d{1})/)[1]));

@@ -182,7 +182,8 @@ Relationship.create = function create(fromNode, relType, toNode, callback) {
 Relationship.getAttributesLikeRelationshipType = function getAttributesLikeRelationshipType(relationshipType, callback) {
     var query = [
         'START o=node(*)',
-        'MATCH o-[r:{tipo}]->d',
+        'MATCH (o)-[r]->(d)',
+        'WHERE TYPE(r) = {tipo}',
         'RETURN r'
     ].join('\n');
 
@@ -207,7 +208,7 @@ Relationship.getAttributesLikeRelationshipType = function getAttributesLikeRelat
 Relationship.getRelationshipTypes = function getRelationshipTypes(callback) {
     var query = [
         'START o=node(*)',
-        'MATCH o-[r]->d',
+        'MATCH (o)-[r]->(d)',
         'RETURN collect(distinct TYPE(r)) AS res'
     ].join('\n');
 
