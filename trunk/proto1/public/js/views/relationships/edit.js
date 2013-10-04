@@ -4,11 +4,14 @@ define('RelationshipEditView', [
     'backbone',
     'moment',
     'text!templates/relationships/edit.html',
+    'text!templates/errTmpl.html',
+    'text!templates/addAttrTmpl.html',
+    'text!templates/attrTmpl.html',
     'RelationshipModel',
     'AttributeTypeCollection',
     'NodeCollection',
     'NodeContainerView'
-], function($, _, Backbone, moment, tpl, Relationship, AttributeTypeCollection, NodeCollection, NodeContainerView) {
+], function($, _, Backbone, moment, tpl, errTmpl, addAttrTmpl, attrTmpl, Relationship, AttributeTypeCollection, NodeCollection, NodeContainerView) {
     var RelationshipEditView;
 
     RelationshipEditView = Backbone.View.extend({
@@ -55,55 +58,16 @@ define('RelationshipEditView', [
 
 
             this.template = _.template(tpl);
-
-            this.errTmpl = '<div class="span4">';
-            this.errTmpl += '<div class="alert alert-error">';
-            this.errTmpl += '<button type="button" class="close" data-dismiss="alert">x</button>';
-            this.errTmpl += '<%- msg %>';
-            this.errTmpl += '</div>';
-            this.errTmpl += '</div>';
-            this.errTmpl = _.template(this.errTmpl);
+            this.errTmpl = _.template(errTmpl);
+            this.addAttrTmpl = _.template(addAttrTmpl);
 
             // Configura template para agregar un registro de atributo
             this.next = 0;
-            this.attrTempl = '<div class="row show-grid" id="row<%= attr %>">';
-            this.attrTempl += '<div class="span4 input-append">';
-            this.attrTempl += '<input type="text" class="span3 input-xlarge attribute-name" id="attribute-input<%= attr %>" data-provide="typeahead" autocomplete="off" value="<%= attrValue %>" />';
-            this.attrTempl += '<button class="btn"><i class="icon-plus-sign"></i></button>';
-            this.attrTempl += '<button class="btn"><i class="icon-search"></i></button>';
-            this.attrTempl += '</div>';
-            this.attrTempl += '<div class="span4">';
-            // string
-            this.attrTempl += '<input type="text" class="input-xlarge attribute-value" id="value-input<%= attr %>-string" value="<%= value %>"/>';
-            // number            
-            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-number" value="<%= value %>" style="display:none" />';
-            // date
-            this.attrTempl += '<input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-date" value="<%= value %>" style="display:none" />';
-            // numberRange
-            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-rangeNumber.from" value="<%= value %>" style="display:none" placeholder="desde"/>';
-            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-rangeNumber.to" value="<%= value %>" style="display:none" placeholder="hasta"/>';
-            // dateRange
-            this.attrTempl += '<input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-rangeDate.from" value="<%= value %>" style="display:none" placeholder="desde"/>';
-            this.attrTempl += '<input type="date" class="input-xlarge attribute-value" id="value-input<%= attr %>-rangeDate.to" value="<%= value %>" style="display:none" placeholder="hasta"/>';
-            // geopoint
-            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-geopoint.lat" value="<%= value.lat ? value.lat : value %>" style="display:none" placeholder="latitud"/>';
-            this.attrTempl += '<input type="number" class="input-xlarge attribute-value" id="value-input<%= attr %>-geopoint.lon" value="<%= value.lon ? value.lon : value %>" style="display:none" placeholder="longitud" />';
-            this.attrTempl += '</div>';
-            this.attrTempl += '<div class="span1">';
-            this.attrTempl += '<button id="deleteButton<%= attr %>" class="btn btn-danger del-btn" type="button" name="<%= attr %>">-</button>';
-            this.attrTempl += '</div>';
-            this.attrTempl += '</div>';
-            this.attrTempl = _.template(this.attrTempl);
-            //console.log(this.attrTempl);
+            this.attrTmpl = _.template(attrTmpl);
+            //console.log(this.attrTmpl);
 
-            //this.attributes = {};
-            // string number date geopoint numberRange dateRange stringList numberList poligon
-            //this.attributes.string=_.template(this.attrTempl += '<input type="text" class="input-xlarge" id="value-input<%= attr %>" value="val<%= value %>" />');
-
-            // inicializa la lista de valores del typeahead de los atributos
+            // inicializa la lista de valores de los typeahead
             this.attrKeys = [];
-
-            // inicializa la lista de tipos de relaciones
             this.relTypes = [];
 
             // guarda quien llamó a la modal, si fromNode o toNode
@@ -112,7 +76,7 @@ define('RelationshipEditView', [
             // inicializa las modal de búsqueda
             if (!this.viewNodes) {
                 this.viewNodes = new NodeContainerView(function(_nodeName) {
-                    console.log('nodo recuperado del modal --> %s', JSON.stringify(_nodeName));
+                    //console.log('nodo recuperado del modal --> %s', JSON.stringify(_nodeName));
                     // setea el nombre de nodo en quien lo disparó
                     $(that.triggerNode).val(_nodeName);
                 });
@@ -125,7 +89,8 @@ define('RelationshipEditView', [
             "click .save-btn": "saveRelationship",
             "click .back-btn": "goBack",
             "click #searchNode": "nodesModal",
-            "change input.attribute-name": "showInputs"
+            "change input.attribute-name": "showInputs",
+            "click #_addAttr": "addAttr"
         },
         render: function() {
             //console.log('render');
@@ -134,41 +99,83 @@ define('RelationshipEditView', [
             var relationship = this.model.toJSON();
             tmpl = this.template({relationship: relationship});
             $(this.el).html(tmpl);
-            if (relationship._id) {
-                // recorre lista de atributos y los muestra para editar
-                // asocia las listas de typeahead
-                _.each(_.keys(relationship._relationship._data.data), function(attributeName) {
-                    that.next = that.next + 1;
-                    $(that.el).find("#afterRow").before(that.attrTempl({attr: that.next.toString(), attrValue: attributeName, value: relationship._relationship._data.data[attributeName]}));
-                    var element = '#attribute-input' + that.next.toString();
-                    $(element).typeahead({source: that.attrList});
-                });
-            } else {
-                // setea los typeahead del input de nueva relación
-                $(this.el).append(this.viewNodes.el);
-                var _nodesInput = $($(that.el).find('#_node-input'));
-                _.each(_nodesInput, function(_node) {
-                    $(_node).typeahead({
-                        source: function(query, process) {
-                            //console.log('nodeCollection --> %s', JSON.stringify(that.nodeCollection));
-                            var nodes = that.nodeCollection.pluck('_data');
-                            var results = _.pluck(nodes, 'nombre');
-                            //console.log('results typeahead --> %s', JSON.stringify(results));
-                            process(results);
+
+            // setea el typeahead para los tipos de realciones
+            getTypes(function(err, types) {
+
+                if (err) {
+                    console.log('imposible recuperar tipos de relaciones: %s', err);
+                    that.relTypes = [];
+                } else {
+                    that.relTypes = types;
+                }
+
+                if (relationship._id) {
+                    // recorre lista de atributos y los muestra para editar
+                    // asocia las listas de typeahead
+                    _.each(_.keys(relationship._relationship._data.data), function(attributeName) {
+                        that.next = that.next + 1;
+                        var attributeType = that.attributeTypeCollection.where({name: attributeName})[0];
+                        var type = "string";
+                        if (attributeType) {
+                            type = attributeType.get("dataType");
                         }
+                        var attributeValue = node._node._data.data[attributeName], val = "", val2 = "";
+                        attributeValue = attributeValue.replace(/'/g, '"');
+                        switch (type) {
+                            case 'string':
+                                val = attributeValue;
+                                break;
+                            case 'number':
+                                val = attributeValue;
+                                break;
+                            case 'date':
+                                val = attributeValue;
+                                break;
+                            case 'numberRange':
+                                val = JSON.parse(attributeValue).desde;
+                                val2 = JSON.parse(attributeValue).hasta;
+                                break;
+                            case 'dateRange':
+                                val = JSON.parse(attributeValue).desde;
+                                val2 = JSON.parse(attributeValue).hasta;
+                                break;
+                            case 'geopoint':
+                                val = JSON.parse(attributeValue).lat;
+                                val2 = JSON.parse(attributeValue).long;
+                                break;
+                            default:
+                                val = attributeValue;
+                                break;
+                        }
+                        $(that.el).find("#afterRow").before(that.attrTmpl({attr: that.next.toString(), attrValue: attributeName, value: val, value2: val2}));
+                        var element = '#attribute-input' + that.next.toString();
+                        $($(that.el).find(element)).typeahead({source: that.attrList});
+                        var valTipo = '#value-input' + that.next.toString() + "-string";
+                        $($(that.el).find(valTipo)).typeahead({source: that.nodeTypes});
+                        showDataType(type, that.next.toString());
+                    });
+                } else {
+                    // setea los typeahead del input de nueva relación
+                    $(that.el).append(that.viewNodes.el);
+                    var _element = $($(that.el).find('#_relType-input'))
+                    _element.typeahead({source: that.relTypes});
+                    var _nodesInput = $($(that.el).find('#_node-input'));
+                    _.each(_nodesInput, function(_node) {
+                        $(_node).typeahead({
+                            source: function(query, process) {
+                                //console.log('nodeCollection --> %s', JSON.stringify(that.nodeCollection));
+                                var nodes = that.nodeCollection.pluck('_data');
+                                var results = _.pluck(nodes, 'nombre');
+                                //console.log('results typeahead --> %s', JSON.stringify(results));
+                                process(results);
+                            }
+                        });
+
                     });
 
-                });
-                // setea el typeahead para los tipos de realciones
-                getTypes(function(err, types) {
-                    if (!err) {
-                        that.relTypes = types;
-                        // las setea en el elemento
-                        var _element = $($(that.el).find('#_relType-input'))
-                        _element.typeahead({source: that.relTypes});
-                    }
-                });
-            }
+                }
+            });
             return this;
         },
         goBack: function(e) {
@@ -181,7 +188,7 @@ define('RelationshipEditView', [
             var that = this;
             var relationshipType = 'NO ENCUENTRA EL TIPO @@##@#';
 
-            // recupera el tipo de nodo si existe
+            // recupera el tipo de relación si existe
             var relationship = this.model.toJSON();
             var type = relationship._type;
             if (type)
@@ -198,7 +205,7 @@ define('RelationshipEditView', [
                 }
 
                 that.next = that.next + 1;
-                $(that.el).find("#afterRow").before(that.attrTempl({attr: that.next.toString(), attrValue: '', value: ''}));
+                $(that.el).find("#afterRow").before(that.attrTmpl({attr: that.next.toString(), attrValue: '', value: '', value2: ''}));
                 var element = '#attribute-input' + that.next.toString();
                 $($(that.el).find(element)).typeahead({source: that.attrKeys, minLength: 0, });
 
@@ -254,11 +261,15 @@ define('RelationshipEditView', [
                 silent: false,
                 sync: true,
                 success: function(model, res) {
-                    if (res && _.keys(res.errors).length) {
+                    if (res && res.errors) {
                         //console.log('/js/views/relationships/edit.js saveRelationship 4 %s', JSON.stringify(res));
                         that.renderErrMsg(res.errors);
                     } else {
-                        model.trigger('save-success', model.get('_id'));
+                        that.model = model;
+                        var _id = model.get('_id');
+                        //console.log("relación guardada exitosamente: %s",_id);
+                        model.trigger('save-success', _id);
+                        that.render();
                     }
                 },
                 error: function(model, res) {
@@ -301,12 +312,17 @@ define('RelationshipEditView', [
         },
         showInputs: function(ev) {
             //console.log($('#row' + $(ev.target).attr('id').match(/attribute-input(\d{1})/)[1]));
-            var attributeType = this.attributeTypeCollection.where({name: $(ev.target).val()})[0];
+            var attrName = $(ev.target).val();
+            Backbone.sync("read", this.attributeTypeCollection);
+            var attributeType = this.attributeTypeCollection.where({name: attrName})[0];
             if (attributeType) {
                 var type = attributeType.get("dataType");
                 var attrId = $(ev.target).attr('id').match(/attribute-input(\d{1})/)[1];
-                $('#row' + attrId).find('input.attribute-value').hide();
-                $('[id^=value-input' + attrId + '-' + type + ']').show();
+                showDataType(type, attrId);
+            } else {
+                // no existe el atributo, debe crearlo
+                this.renderAttrMsg(attrName);
+                $(ev.target).val("");
             }
         },
         nodesModal: function(ev) {
@@ -315,6 +331,10 @@ define('RelationshipEditView', [
             this.triggerNode = _nodoObjetivo;
             this.viewNodes.render();
             $('#nodesContainerModal').modal('show');
+        },
+        addAttr: function(ev) {
+            // TODO: Implementar modal de alta de atributo - Refrescar valores de atributos de la colección
+            indinet.navigate('#/indinet/attributeTypes/new', {trigger: true, replace: false});
         }
     });
 
@@ -338,7 +358,13 @@ define('RelationshipEditView', [
             callback('TODO');
         });
     }
-    ;
+
+// muestra el tipo de atributo que corresponde según el data type
+    function showDataType(type, attrId) {
+        $('#row' + attrId).find('input.attribute-value').hide();
+        $('#row' + attrId).find('#value-input' + attrId + '-' + type).show();
+    }
+
 
     return RelationshipEditView;
 });

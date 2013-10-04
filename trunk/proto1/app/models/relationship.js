@@ -17,8 +17,8 @@ var Relationship = module.exports = function Relationship(_relationship, _fromNo
     var that = this;
 
     this._relationship = _relationship;
-    this._data = _relationship.data;
-    this._type = _relationship.type;
+    this._data = _relationship['data'];
+    this._type = _relationship['type'];
     this._id = _relationship.id;
 
     this.fromNodeId = _relationship.start.id;
@@ -95,12 +95,12 @@ Relationship.get = function get(id, callback) {
     });
 
     /*
-    db.getRelationshipById(id, function(err, relationship) {
-        if (err)
-            return callback(err);
-        callback(null, new Relationship(relationship));
-    });
-    */
+     db.getRelationshipById(id, function(err, relationship) {
+     if (err)
+     return callback(err);
+     callback(null, new Relationship(relationship));
+     });
+     */
 
 };
 
@@ -164,9 +164,17 @@ Relationship.getQuery = function getQuery(where, params, callback) {
 
 // creates the relationship and persists (saves) it to the db, incl. indexing it:
 Relationship.create = function create(fromNode, relType, toNode, callback) {
-    console.log('fromNode --> %s',JSON.stringify(fromNode._node));
-    fromNode._node.createRelationshipTo(toNode._node, relType, function(err, rel) {
-        callback(err, rel);
+    //console.log('create relationship relType: %s',relType);
+    fromNode._node.createRelationshipTo(toNode._node, relType, {}, function(err, rel) {
+        var relationship;
+        if (!err) {
+            //console.log("rel --> %s", JSON.stringify(rel));
+            relationship = new Relationship(rel, fromNode._node, toNode._node);
+            callback(null, relationship);
+        } else {
+            //console.log("err x create --> %s", err);
+            callback(err, null);
+        }
     });
 };
 
@@ -208,8 +216,8 @@ Relationship.getRelationshipTypes = function getRelationshipTypes(callback) {
             return callback(err, []);
 
         var values = _.first(_.values(_.first(types)));
-        console.log("Resultado consulta de tipos de nodos --> %s",JSON.stringify(types));
-        console.log("tipos de nodos --> %s",JSON.stringify(values));
+        //console.log("Resultado consulta de tipos de relaciones --> %s",JSON.stringify(types));
+        //console.log("tipos de relaciones --> %s",JSON.stringify(values));
         callback(null, values);
     });
 };
