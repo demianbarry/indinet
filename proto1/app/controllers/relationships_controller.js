@@ -91,7 +91,7 @@ RelationshipsController = function(app, config) {
     app.post(v1 + '/relationships', function create(req, res, next) {
 
         var code = 404;
-        console.log(req.body.data);
+        //console.log(req.body.data);
         var newData = JSON.parse(req.body.data);
         var fromNodeName = newData.fromNode;
         var toNodeName = newData.toNode;
@@ -101,16 +101,16 @@ RelationshipsController = function(app, config) {
         Node.getNodeByName(fromNodeName, function(err, fromNode) {
             //console.log("paso 1");
             if (!err) {
-                //console.log("paso 2 %s",err);
+                //console.log("paso 2 %s",JSON.stringify(fromNode._data));
                 Node.getNodeByName(toNodeName, function(err, toNode) {
                     if (!err) {
-                        //console.log("paso 3 %s",err);
+                        //console.log("paso 3 %s",JSON.stringify(toNode._data));
                         Relationship.create(fromNode, relType, toNode, function(err, relationship) {
                             if (!err) {
-                                console.log("paso 4 %s",err);
-                                res.send(relationship, code);
+                                //console.log("relación creada exitosamente %s",relationship._id);
+                                res.json(relationship, 200);
                             } else {
-                                console.log("paso 4.err %s",err);
+                                //console.log("paso 4.err %s",err);
                                 console.log("Create relationship Sale con error %s", err);
                                 log(err);
                                 res.json(err, code);

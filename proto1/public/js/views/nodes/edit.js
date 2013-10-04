@@ -60,7 +60,7 @@ define('NodeEditView', [
             "click .save-btn": "saveNode",
             "click .back-btn": "goBack",
             "change input.attribute-name": "showInputs",
-            "click #_addAttr": "addAttr",
+            "click #_addAttr": "addAttr"
         },
         render: function() {
             //console.log('render');
