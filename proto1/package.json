@@ -13,7 +13,6 @@
     "connect-timeout": "0.0.1",
     "express": "3.x.x",
     "moment": "1.6.x",
-    "mongoose": "2.5.x",
     "neo4j": "0,2,x",
     "nodemailer": "0.3.20",
     "uglify-js": "1.2.x",
@@ -22,7 +21,6 @@
     "requirejs": "2.0.2"
   },
   "devDependencies": {
-    "mocha": "1.1.x",
     "should": "0.6.x",
     "request": "2.9.x"
   },
